@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Intro to K8s Autoscaling | Ben Mask</title>
+<meta name="keywords" content="explainer, cloud, kubernetes, autoscaling">
+<meta name="description" content="Big Idea Autoscaling is a key technology that builds on the elasticity of distributed cloud computing. To understand autoscaling in the Kubernetes environment, it will be important to understand the basic enabling technologies: containerization and distributed computing. By leveraging hese two technologies, Kubernetes supports horizontal pod autoscaling (hpa) and cluster autoscaling. In this post I will dive into some brief background on Containerization and distributed computing (just enough to be dangerous) and then take a more focused look at the horizontal autoscaling functionality of Kubernetes.">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/05-intro-to-k8s-autoscaling/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.fc220c15db4aef0318bbf30adc45d33d4d7c88deff3238b23eb255afdc472ca6.css" integrity="sha256-/CIMFdtK7wMYu/MK3EXTPU18iN7/MjiyPrJVr9xHLKY=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/05-intro-to-k8s-autoscaling/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="Ben Mask (Alt + H)">Ben Mask</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">Home</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Intro to K8s Autoscaling
+      <span class="entry-hint" title="Draft">
+        <svg xmlns="http://www.w3.org/2000/svg" height="35" viewBox="0 -960 960 960" fill="currentColor">
+          <path
+            d="M160-410v-60h300v60H160Zm0-165v-60h470v60H160Zm0-165v-60h470v60H160Zm360 580v-123l221-220q9-9 20-13t22-4q12 0 23 4.5t20 13.5l37 37q9 9 13 20t4 22q0 11-4.5 22.5T862.09-380L643-160H520Zm300-263-37-37 37 37ZM580-220h38l121-122-18-19-19-18-122 121v38Zm141-141-19-18 37 37-18-19Z" />
+        </svg>
+      </span>
+    </h1>
+    <div class="post-meta"><span title='2024-08-10 19:57:08 -0400 EDT'>August 10, 2024</span>&nbsp;·&nbsp;13 min
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#big-idea" aria-label="Big Idea">Big Idea</a></li>
+                <li>
+                    <a href="#containers-and-distirbuted-computing" aria-label="Containers and Distirbuted Computing">Containers and Distirbuted Computing</a><ul>
+                        
+                <li>
+                    <a href="#containers" aria-label="Containers">Containers</a></li>
+                <li>
+                    <a href="#distributed-computing" aria-label="Distributed Computing">Distributed Computing</a></li>
+                <li>
+                    <a href="#kubernetes" aria-label="Kubernetes">Kubernetes</a></li></ul>
+                </li>
+                <li>
+                    <a href="#autoscaling" aria-label="Autoscaling">Autoscaling</a><ul>
+                        
+                <li>
+                    <a href="#horizontal-pod-autoscaling-hpa" aria-label="Horizontal Pod Autoscaling (HPA)">Horizontal Pod Autoscaling (HPA)</a><ul>
+                        
+                <li>
+                    <a href="#scaling-based-on-resource-usage" aria-label="Scaling Based on Resource Usage">Scaling Based on Resource Usage</a></li>
+                <li>
+                    <a href="#the-autoscaling-algorithm" aria-label="The Autoscaling Algorithm">The Autoscaling Algorithm</a></li>
+                <li>
+                    <a href="#scaling-with-multiple-metrics" aria-label="Scaling with Multiple Metrics">Scaling with Multiple Metrics</a></li>
+                <li>
+                    <a href="#scaling-based-on-custom-metrics" aria-label="Scaling based on Custom Metrics">Scaling based on Custom Metrics</a></li></ul>
+                </li>
+                <li>
+                    <a href="#cluster-autoscaling" aria-label="Cluster Autoscaling">Cluster Autoscaling</a><ul>
+                        
+                <li>
+                    <a href="#provisioning-new-nodes" aria-label="Provisioning New Nodes">Provisioning New Nodes</a><ul>
+                        
+                <li>
+                    <a href="#finding-a-schedulable-node" aria-label="Finding a Schedulable Node">Finding a Schedulable Node</a></li>
+                <li>
+                    <a href="#expanders" aria-label="Expanders">Expanders</a></li></ul>
+                </li>
+                <li>
+                    <a href="#de-provisioning-nodes" aria-label="De-provisioning Nodes">De-provisioning Nodes</a></li>
+                <li>
+                    <a href="#ca-profile" aria-label="CA Profile">CA Profile</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="big-idea">Big Idea<a hidden class="anchor" aria-hidden="true" href="#big-idea">#</a></h1>
+<p>Autoscaling is a key technology that builds on the elasticity of distributed cloud computing. To understand autoscaling in the Kubernetes environment, it will be important to understand the basic enabling technologies: containerization and distributed computing. By leveraging hese two technologies, Kubernetes supports horizontal pod autoscaling (hpa) and cluster autoscaling. In this post I will dive into some brief background on Containerization and distributed computing (just enough to be dangerous) and then take a more focused look at the horizontal autoscaling functionality of Kubernetes.</p>
+<h1 id="containers-and-distirbuted-computing">Containers and Distirbuted Computing<a hidden class="anchor" aria-hidden="true" href="#containers-and-distirbuted-computing">#</a></h1>
+<p>As I mentioned before, I want to touch briefly on the enabling technologies of autoscaling in the Kubernetes envrionment specifically. These two technologies are containers and distirbuted computation. Let&rsquo;s look at each in turn&hellip;</p>
+<h2 id="containers">Containers<a hidden class="anchor" aria-hidden="true" href="#containers">#</a></h2>
+<p>Containers are often compared to VMs. They are both technologies that virtualize the resources of an underlying machine. Virtualization means that one homogenous resource is &ldquo;virtually&rdquo; represented as multiple resources. Unlike a VM which which virtualizes an entire machine including the hardware layers, a container on the other hand, virtualizes the execution environment (os, packages, libraries). Whereas the VM is equivalent to creating a habitable environment on Mars, a container is equivalent to putting on a space suit.</p>
+<p>What the container represents is a unit of deployment. It wraps an application so that it can be deployed and run predicatably on any machine without being concerned about the details of the underlying machine on which the container runs. One of these underlying details that a container is not concerned about is other containers running on the machine. This means that the container is an isolated execution environment consuming virtualized resources from an underlying physical machine</p>
+<h2 id="distributed-computing">Distributed Computing<a hidden class="anchor" aria-hidden="true" href="#distributed-computing">#</a></h2>
+<p>Distributed computing is a natural product of the boom of networking technology that came out of the Bay area in the 80&rsquo;s and 90&rsquo;s. It was the end of the era of mainframe computing, in which time-sharing was a key mechnism for partitioning the computation of a single machine among many users by sharing processing time. With improving network capabilities and an increasingly available fleet of machine often with idle compute, companies tried to develop tools that presented a collection of machines as a single service. For many years this was stumbling breakthroughs with new technologies like remote procedure calls (RPC), network file systems (NFS), Andrew File System (AFS), Locus, Sprite, Plan 9, and on.</p>
+<p>The goal that many of these early systems tried to achieve was distributing an application acorss many machines. They attempted to present a single OS interface for many machines. In this paradigm, the process was the unit of distirbution.</p>
+<p>Over more time than I care to write about here, the paradigm evolved. There was a shift away from trying to distribute processes across machine and towards distributing computation that was embarassingly parallel across machines.</p>
+<blockquote>
+<p>📖 <strong>Embarrassingly parallel tasks</strong> are tasks that it takes relativlely little to no work to split the problem in parallel execution environments to run computation. If needed, results produced by tasks executed in parallel can be aggregated afterwards.</p>
+</blockquote>
+<p>A perfect example for a computation unit to run in parallel across many machines is the modern container. Applications run across a fleet of machines and stateless HTTP requests can get handled by an application in any container or applications can consume from a central queue and process large numbers of jobs in parallel.</p>
+<h2 id="kubernetes">Kubernetes<a hidden class="anchor" aria-hidden="true" href="#kubernetes">#</a></h2>
+<p>With a better understanding of containers and distributed computing it may be easier to step back and look at Kubernetes. Kubernetes, labelled as a container orechstraion system, is tool that presents a single interface (control plane) for users to run container-based applications across a large collection of nodes.</p>
+<h1 id="autoscaling">Autoscaling<a hidden class="anchor" aria-hidden="true" href="#autoscaling">#</a></h1>
+<p>Cloud providers have a signifcant amount of computational resources at their disposal. As result, these providers, give user&rsquo;s a benefit known as elatisity. <strong>Elastisity</strong> is the ability to provision or de-allocated resources on demand and based on need. This is a unique feature of cloud environments that contrasts the often slow acquisition time and upfront captial that needs to beinvested to procure on-prem equipment.</p>
+<p>Autoscaling is data-driven approach to provisioning and de-provisioning resources based on active load on a system at a given point in time. The two forms of autoscaling that we will look at further on are horizontal pod autocaling and cluster autoscaling. These are both forms of autoscaling in Kubernetes that would be descrbed as forms of horizontal scaling. <strong>Horizontal scaling</strong>, sometimes known as scaling out, refers to the addition of more discrete computation units (i.e. add more nodes or pods). In contrast, <strong>vertical scaling</strong>, also known as scaling up, means increasing the available hardware capabilites of the existing machines (add more cpu, memory).</p>
+<h2 id="horizontal-pod-autoscaling-hpa">Horizontal Pod Autoscaling (HPA)<a hidden class="anchor" aria-hidden="true" href="#horizontal-pod-autoscaling-hpa">#</a></h2>
+<p>By default, any Kubernetes workload  you deploy that creates pods such as a deployment or statefulset is not going to autoscale. Usually in a basic configuration the number of desired pods will be statically set by defining the <code>replicas</code> field on the controller. However, the Kubernetes API supports a Horizontal Pod Autoscaler (HPA) resource. Rather than generating a fixed number of pods, the HPA will increase or decrease the number of pods for the workload (remember, horizontal scaling) based on the observed resource utilization of the pods in that workload.</p>
+<p>More specifically, the horizontal pod autoscaler is a controller shipped as part of the Kubernetes controller manager, a daemon that embeds the default controllers shipped with Kubernetes. The HPA resources that we create via the Kubernetes API will specify configuration for this controller to manager our workloads.</p>
+<p>When we talk about a controller in Kubernetes, we are talking about a control loop process that continuosuly evaluates the current state of the system, compares it to some desired state, and makes changes as required. In the case of the HPA, an metric is observed, compared to a threshold, and pods are scaled up or down (or not at all).</p>
+<p><img loading="lazy" src="./images/hpa-control-loop.png" alt="hpa-control-loop"  />
+</p>
+<h3 id="scaling-based-on-resource-usage">Scaling Based on Resource Usage<a hidden class="anchor" aria-hidden="true" href="#scaling-based-on-resource-usage">#</a></h3>
+<p>In order to scale a pod based on observed resource usage you need to specify resource requests on a pod. Resources requests are a field that can be optionally defined as part of your pod template. The resource requests specify the amount of cpu and/or memory that the pod needs to run. Defining resource requests is considered best practice because they enable the Cluster Scheduler to determine whether there are any nodes with sufficient resources when placing a pod.</p>
+<p>Defining the resource requests for a pod is necessary for enabling HPA because the only resource metrics that the HPA can scale based on (without the more involved process of setting up custom pod or object metrics) are the observed usage of the requested cpu and memory resources. Here is an example HPA that scales based on the % utilization of CPU:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">autoscaling/v2</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">HorizontalPodAutoscaler</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nginx</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">## Defined the workload we want to scale</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">scaleTargetRef</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apps/v1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Deployment</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">name</span>: <span style="color:#ae81ff">nginx</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">minReplicas</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">maxReplicas</span>: <span style="color:#ae81ff">10</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">metrics</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#f92672">type</span>: <span style="color:#ae81ff">Resource</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">resource</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">name</span>: <span style="color:#ae81ff">cpu</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">target</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">type</span>: <span style="color:#ae81ff">Utilization</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">averageUtilization</span>: <span style="color:#ae81ff">60</span>
+</span></span></code></pre></div><p>what you see above is an HPA that scales in a new pof for Deployment workload named nginx whenever the average cpu utilization is above 60%. An alternative to the <code>target.type: Utilization</code> is the <code>target.type: AverageValue</code>. Using the latter you can specify an exact value for resource usage, such as the number of milicores, or Gb of memory.</p>
+<blockquote>
+<p>💡 <strong>Important</strong>: It is a common misperception when seeing a pod&rsquo;s % cpu usage or % memory usage to assume that the ratio is with respect to the resources available on the underlying node. In reality, more often that not this value is with respect to the resources requests specified on the pod spec. Further, the average utilization measured and compared to the threshold defined in the HPA is the resource usages of all the pods added and averaged. This means a situation can result where one pod&rsquo;s utilization is above the threshold but no new pods is scaled in since the average across all pods in the workload are below the threshold.</p>
+</blockquote>
+<h3 id="the-autoscaling-algorithm">The Autoscaling Algorithm<a hidden class="anchor" aria-hidden="true" href="#the-autoscaling-algorithm">#</a></h3>
+<p>In the most basic scenario, scaling is triggered based on the ratio between the configured threshold metric value and the observed metric value. At any point in time you can calculate the number of replicas the autoscaler should have by using the same calulation:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-plaintext" data-lang="plaintext"><span style="display:flex;"><span>desiredReplicas = ceil[currentReplicas * ( currentMetricValue / thresholdMetricValue )]
+</span></span></code></pre></div><p>Based on the above calculation we know that a scale up occurs as soon as the thresholdMetricValue is surpassed. However, because we use ceil, a scale down does necessarily happen as soon as we drop below the threshold. This provides some stability to the scaling. Here is an example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-plaintext" data-lang="plaintext"><span style="display:flex;"><span>## Initial State
+</span></span><span style="display:flex;"><span>currentReplicas = 2
+</span></span><span style="display:flex;"><span>currentCPU = 100 #millicores
+</span></span><span style="display:flex;"><span>thresholdCPU = 100 
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>## No scale up
+</span></span><span style="display:flex;"><span>desiredReplicas = ceil(2 * (100 / 100)) = 2
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>## Scale Up
+</span></span><span style="display:flex;"><span>currentCPU = 101
+</span></span><span style="display:flex;"><span>desiredReplicas = ceil(2 * (101 / 100)) = ceil(2 * 1.01) = ceil(2.02) = 3 ## Now 3 replicas
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>## No Scale Down
+</span></span><span style="display:flex;"><span>currentReplicas = 3
+</span></span><span style="display:flex;"><span>currentCPU = 90
+</span></span><span style="display:flex;"><span>desiredReplicas = ceil(3 * (90 / 100)) = ceil(3 * 90) = ceil(2.7) = 3
+</span></span></code></pre></div><h3 id="scaling-with-multiple-metrics">Scaling with Multiple Metrics<a hidden class="anchor" aria-hidden="true" href="#scaling-with-multiple-metrics">#</a></h3>
+<p>Scaling is not limited to one metric. You can specify multiple metric thresholds for scaling. When multiple metrics are defined, the HPA will evaluate each metric, select the metric that results in the gratest number of running pods, and scale if needed. If any metric cannot be calculated then scaling is skipped for that round of calulations.</p>
+<h3 id="scaling-based-on-custom-metrics">Scaling based on Custom Metrics<a hidden class="anchor" aria-hidden="true" href="#scaling-based-on-custom-metrics">#</a></h3>
+<p>It&rsquo;s not unlikely that you may want to scale your workload based on metrics other than CPU or memory. To understand how to do this, let&rsquo;s deepen our understanding of how the horizontal pod autoscaler gathers metrics.</p>
+<p>Contrary to the original diagram provided above, there is actually third component involved in the control loop of the horizontal pod autoscaler. That component is the metrics registry.</p>
+<p>The metrics registry is an extension to the Kubernetes API that serves metrics through a standard interface to any clients in the cluster. Using Prometheus Metrics and the Prometheus Metrics Adapter, it is possible to expose custom metrics via the Metrics Server API for scaling purposes.</p>
+<p><img loading="lazy" src="./images/hpa-ctl-loop2.png" alt="hpa-control-loop"  />
+</p>
+<h2 id="cluster-autoscaling">Cluster Autoscaling<a hidden class="anchor" aria-hidden="true" href="#cluster-autoscaling">#</a></h2>
+<p>Scaling pods horizontally is great but its benefits are limited by the availability of the resources needed to actually run those pods. If your cluster consists of 5 nodes, then in all likely-hood, you can&rsquo;t support scaling up to tens or hundreds of a resource intensive pods for a resource intensive workload. There is where cluster autoscaling — the obverse of horizontal pod autoscaling — comes in to support a fully elastic workload. Cluster autoscaling is the ability have your cluster dynamically add or remove nodes from your cluster based on demand. In a cloud-based environment, vendors generally have a cluster autoscaling solution that integrates with their Virtual Machine solutions to automatically provision or de-provision nodes.</p>
+<h3 id="provisioning-new-nodes">Provisioning New Nodes<a hidden class="anchor" aria-hidden="true" href="#provisioning-new-nodes">#</a></h3>
+<p>As I said above, cluster autoscaling is the ability have your cluster dynamically add or remove nodes from your cluster based on demand. However, we need to take a look at how <em>demand</em> is evaluated in the case of the cluster autoscaler. Unlike horizontal pod autoscaling, which scales the pods for a workload based on observed resource usage, the cluster autoscaler does not operate based on the observed resource usage of nodes. Instead the cluster autoscaler <strong>operates based on the ability to schedule a new pod with the current available resources</strong>.</p>
+<p>When the cluster shceduler attemps to schedule a pod, it will look at the resource requests of that pod, filter out nodes from consideration based on any node taint/tolerations, and then check if any node has sufficient resources to host the pod. If there are no nodes with sufficient resources available to satisfy those requests, then the autoscaler will be triggered to add an aditional node.</p>
+<h4 id="finding-a-schedulable-node">Finding a Schedulable Node<a hidden class="anchor" aria-hidden="true" href="#finding-a-schedulable-node">#</a></h4>
+<p>Finding a scheduleable node is a two part process that consists of:</p>
+<ul>
+<li><strong>Filtering:</strong> The Scheduler filters out nodes that the pod cannot be scheduled to based on node selectors, taints, and resources</li>
+<li><strong>Scoring:</strong> The feasible nodes are passed through a series of scoring functions for determing which node should be used for placement</li>
+</ul>
+<p>For this post we&rsquo;ll focus on the resource filtering aspect of pod scheduling.</p>
+<p>After the scheduler filters out nodes based on taints and node selectors, the scheduler will compute the available capacity of each node. To calculate the available capacity of a node, you subtract the the resources allocated for the system (kubelet, OS processes) and the resources requests by currently running pods on that node. It is important to note that no real-time observed usage metrics are used for this process. If the node is determined to have available capacity for the requests of the pod then it is considered viable for scheduling and will be scored in the next phase.</p>
+<p>The above description makes sense in a perfect world where requests are set on all of our workloads but that is not always the case. Given this fact, there are some nuances around pods without resource requests to understand.</p>
+<p>Pods that do not have requests specified are considered to have a <strong>BestEffort Quality of Service (QoS)</strong>. The resource usage of pods with a BestEffort QoS running on a node are not considered as part of the calculation used by the scheduler to determine the available capacity of a node. However, if a node is under pressure for resources, BestEffort QoS pods are the first to be evicted from the node. If the scheduler is trying to schedule a pod with a BestEffort QoS, the pod will be placed on any node that has available capacity. While the scheduler does not look at metrics, the kubelet on each node does. If a node is under pressure for resource, the kubelet will begin to mark pods for eviction beginning with BestEffot QoS pods.</p>
+<p>Let&rsquo;s take a look at an visual example of this:</p>
+<p><img loading="lazy" src="./images/node-scheduling-02.png" alt="Node Scheduling 1"  />
+</p>
+<p>We can observe a few key things here:</p>
+<ol>
+<li>Node 1 is elimated due to having a taint that the new pod does not tolerate</li>
+<li>The BestEffort QoS pod on node 2 does not decrease the computed available capacity of that node which can lead to over scheduling</li>
+<li>Node 2 and Node 3 are feasible for scheduling the pod</li>
+</ol>
+<p>But what happens if the pod couldn&rsquo;t be scheduled? In that case, the cluster autoscaler will be responsible for adding a new node into the cluster. If there is only one node type/size that can be scaled then scaling is trivial and a new node is provisioned. If there are multiple node pools available to this cluster with different types or sizes of node that could be added then the cluster autoscaler must select one of the available node pools to scale. How this selection is performed is the next topic that will be covered.</p>
+<h4 id="expanders">Expanders<a hidden class="anchor" aria-hidden="true" href="#expanders">#</a></h4>
+<p>If a pod cannot be scheduled and a new node must be provisioned for a cluster with multiple node pools then a decision needs to made about what type of node to add to the cluster. Often times you will have multiple node pools available in your cluster. These node pools could contain different sizes of node or nodes with differnet capabilities and hardware specifications. In this case, the question of how the Cluster Autoscaler selects which node pool to scale arises. This is the problem that expanders solve. <strong>Expanders are strategies configured on the autoscaler profile that determine which node type to select when scaling up</strong>.</p>
+<blockquote>
+<p><strong>Note:</strong> If you only have one pool of node types available for scaling up then scaling in a new node is trivial and expanders do not apply.</p>
+</blockquote>
+<p>Cluster Autoscaler implementations in the various cloud providers support a configuration for expanders. Expanders are strategies for solving this problem. Often there will be expanders for scaling based on the following:</p>
+<ul>
+<li><code>price</code>: scale the node pool with the cheapest node type available.</li>
+<li><code>priority</code>: scale node pools based on user assigned priority</li>
+<li><code>random</code></li>
+<li><code>least-waste</code>: Scales the node pool that would have the least idle CPU after all the pending pods are scheduled</li>
+</ul>
+<p>For a full overview of expanders read up <a href="https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/FAQ.md#what-are-expanders">here</a></p>
+<h3 id="de-provisioning-nodes">De-provisioning Nodes<a hidden class="anchor" aria-hidden="true" href="#de-provisioning-nodes">#</a></h3>
+<h3 id="ca-profile">CA Profile<a hidden class="anchor" aria-hidden="true" href="#ca-profile">#</a></h3>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/explainer/">Explainer</a></li>
+      <li><a href="http://localhost:1313/tags/cloud/">Cloud</a></li>
+      <li><a href="http://localhost:1313/tags/kubernetes/">Kubernetes</a></li>
+      <li><a href="http://localhost:1313/tags/autoscaling/">Autoscaling</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="next" href="http://localhost:1313/posts/04-understanding-ipv4-addressing/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Understanding CIDR Blocks and IPv4 Addressing</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2024 <a href="http://localhost:1313/">Ben Mask</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

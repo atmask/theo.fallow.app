@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Understanding CIDR Blocks and IPv4 Addressing | Ben Mask</title>
+<meta name="keywords" content="networking, explainer, cloud, IP">
+<meta name="description" content="Big Idea The goal of this post will be to give an overview of IPv4 addresses. My aim is to do this incrementally by first covering the anatomy of an IPv4 address in its base 10 and binary representations. Second, I will look at CIDR block subnetting and subnet masks. Thirdly, I will append some helpful formulas for working with IP addresses.
+Background &amp; History Before diving into the anatomy of IPv4 let&rsquo;s turn back the page.">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/04-understanding-ipv4-addressing/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.fc220c15db4aef0318bbf30adc45d33d4d7c88deff3238b23eb255afdc472ca6.css" integrity="sha256-/CIMFdtK7wMYu/MK3EXTPU18iN7/MjiyPrJVr9xHLKY=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/04-understanding-ipv4-addressing/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="Ben Mask (Alt + H)">Ben Mask</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">Home</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Understanding CIDR Blocks and IPv4 Addressing
+    </h1>
+    <div class="post-meta"><span title='2024-08-09 20:01:16 -0400 EDT'>August 9, 2024</span>&nbsp;·&nbsp;7 min
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#big-idea" aria-label="Big Idea">Big Idea</a></li>
+                <li>
+                    <a href="#background--history" aria-label="Background &amp; History">Background &amp; History</a></li>
+                <li>
+                    <a href="#anatomy-of-ipv4" aria-label="Anatomy of IPv4">Anatomy of IPv4</a></li>
+                <li>
+                    <a href="#subnetting-ipv4" aria-label="Subnetting IPv4">Subnetting IPv4</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#cidr-notation" aria-label="CIDR Notation">CIDR Notation</a></li>
+                <li>
+                    <a href="#subnet-masks" aria-label="Subnet Masks">Subnet Masks</a></li>
+                <li>
+                    <a href="#host-address-and-broadcast-address" aria-label="Host Address and Broadcast Address">Host Address and Broadcast Address</a></li></ul>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#useful-formulas-and-notes" aria-label="Useful Formulas and Notes">Useful Formulas and Notes</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#number-of-ips-in-a-cidr-block" aria-label="Number of IPs in a CIDR Block">Number of IPs in a CIDR Block</a></li>
+                <li>
+                    <a href="#number-of-unique-address-of-x-bits" aria-label="Number of Unique Address of x Bits">Number of Unique Address of x Bits</a></li>
+                <li>
+                    <a href="#largest-ip-of-x-bits" aria-label="Largest IP of x Bits">Largest IP of x Bits</a></li>
+                <li>
+                    <a href="#resizing-cidr-blocks" aria-label="Resizing CIDR blocks">Resizing CIDR blocks</a>
+                </li>
+            </ul>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="big-idea">Big Idea<a hidden class="anchor" aria-hidden="true" href="#big-idea">#</a></h1>
+<p>The goal of this post will be to give an overview of IPv4 addresses. My aim is to do this incrementally by first covering the anatomy of an IPv4 address in its base 10 and binary representations. Second, I will look at CIDR block subnetting and subnet masks. Thirdly, I will append some helpful formulas for working with IP addresses.</p>
+<h1 id="background--history">Background &amp; History<a hidden class="anchor" aria-hidden="true" href="#background--history">#</a></h1>
+<p>Before diving into the anatomy of IPv4 let&rsquo;s turn back the page. In 1981, RFC 791 was published. This document outlined the <em>Internet Protocol</em> and the IPv4 addressing scheme that would be used to uniquely identify and locate machines on the Internet.</p>
+<p>The ability to uniquely identify devices on a network is incredibly important. This ability is how we route packages from one machine to another across a network. On a network, a given IP must be uniquely assigned to a single device for seamless communication. The concept of the IP address that we will explore today is one part of a larger layered model (known as the OSI model) that facilitates the transfer of data over a network.</p>
+<p>Engineers at the time that RCF 791 was published did not realize the magnitude of devices that would one day be connected to the Internet. This has become a problem in recent times as there are a fixed number of globally unique IPv4 addresses. As the number of devices has grown to surpass the number of available IPs, engineers have had to apply solutions such as Network Address Translation (NAT) to use IPs more effectively. This exhaustion of IPv4 addresses has also led to a second standard in IP addressing known as IPv6 which is becoming increasingly common. IPv6 functions in a similar fashion to IPv4 but has roughly 3.4×10^38 addresses compared to IPv4&rsquo;s approximately 4x10^9 addresses.</p>
+<h1 id="anatomy-of-ipv4">Anatomy of IPv4<a hidden class="anchor" aria-hidden="true" href="#anatomy-of-ipv4">#</a></h1>
+<p>An IPv4 address that you see may look like the following: <code>192.168.0.2</code>. This address represents 32 bits in a base 10 format. Those 32 bits are divided into 4 groups known as <strong>octets</strong>. Each octet contains 8 bits. The four octets correspond to the four &lsquo;.&rsquo; separated parts of the IP address in our example. When working with IPv4, it is often easier to convert the base 10 represenation of the IP address into binary. This means that we could represent the above IP as follows:</p>
+<!-- raw HTML omitted -->
+<p><code>192.168.0.2</code></p>
+<p><code>1100 0000 - 1010 1000 - 0000 0000 - 0000 0010</code></p>
+<!-- raw HTML omitted -->
+<p>The lowest value in an octet is 0. In binary, this would correspond to an octet of all 0 bits: <code>0000 0000</code>. The highest value in an octet is 255. This is the highest number that can be represented with 8 bits (2^8-1): <code>1111 1111</code>. We subtract 1 from 2^8 since 2^8 represents the total unique values that can be represented with 8 bits, however, 0 is one of those values that can be represented meaning the values range from 0-255 (i.e. 2^8-1).</p>
+<h1 id="subnetting-ipv4">Subnetting IPv4<a hidden class="anchor" aria-hidden="true" href="#subnetting-ipv4">#</a></h1>
+<p>It is common, when working with IP addresses in the cloud, that you want to create groups of sequential IPs that you can dedicate to a certain use. Often when people talk about these groups you will hear things like &ldquo;IP space&rdquo;, &ldquo;CIDR block&rdquo;, &ldquo;subnet&rdquo;, or &ldquo;address range&rdquo;. The key idea is that you want to carve out a broad range of IPs and divide those IPs in an effective way. This always involves balancing two variables: the number of subnets you want to create and the number of devices in each subnet. This segues into the next idea which is that each 32-bit IPv4 address is divided into two parts. A network portion and a host portion.</p>
+<p>Let&rsquo;s say we have a network consisting of all of the IP addresses between <code>10.0.0.0</code> to <code>10.255.255.255</code>. In that range of IPs, we see that the leading octet always has a value of 10 on the network (ex. <code>10.0.0.1</code>, <code>10.100.29.0</code>). This is because the first octet, that is the first 8 bits of this IP address, are fixed and represent the <strong>network portion</strong> of the IP address. The following 3 octets can change in value and represent the <strong>host portion</strong> of the IP. Let&rsquo;s look at this in binary:</p>
+<!-- raw HTML omitted -->
+<p>10.0.0.0</p>
+<p><strong>0000 1010</strong> - 0000 0000 - 0000 0000 - 0000 0000</p>
+<p>(The leading 8 bits in bold are fixed and make up the network protion of the address)</p>
+<!-- raw HTML omitted -->
+<p>In this example, the host portion allows 16,777,216 hosts. It is very likely that we don&rsquo;t want to dedicate all of those addresses to a single project. Instead, we want to partition out a section of IPs for our use-case.</p>
+<h3 id="cidr-notation">CIDR Notation<a hidden class="anchor" aria-hidden="true" href="#cidr-notation">#</a></h3>
+<p>When it comes to dividing an IP into the network portion and the host portion, the network portion is always represented by some leading number of bits. How many leading bits are fixed is often up to you, the developer, to decide. This means that we need a standard way to tell others how many leading bits are fixed and represent the network portion of the address. To solve this problem we will introduce CIDR notation. CIDR notation stands for Classless Inter-domain Routing and is a standard way to tell others how many leading bits make up the network portion of an address. The name, classless inter-domain routing is a nod to an earlier and antiquated method of partitioning IP addresses known as class-based routing.</p>
+<p>Using CIDR notation you will append an <code>/x</code> to the end of your network IP. The value of <code>x</code> dictates how many leading bits dictate the network portion of the address. In the example above we would represent our address range of <code>10.0.0.0</code> to <code>10.255.255.255</code> as <code>10.0.0.0/8</code>.</p>
+<p>The number of leading bits does not need to cleanly divide the octets. This means you can have CIDR blocks other than <code>/8</code>, <code>/16</code>, <code>/24</code>, or <code>/32</code>. You could also have a CIDR block like <code>/12</code>. When creating a CIDR block that splits and octet the binary notation becomes increasingly helpful. Take a look at the following:</p>
+<p>10.0.0.0/12</p>
+<p><strong>0000 1010 - 0000</strong> 0000 - 0000 0000  - 0000 0000</p>
+<p>10.0.x.x -&gt; 10.15.x.x</p>
+<h3 id="subnet-masks">Subnet Masks<a hidden class="anchor" aria-hidden="true" href="#subnet-masks">#</a></h3>
+<p>Subnet masks are another common notation for indicating the network and host portions of an IPv4 address. Subnet masks resemble an IP address. They are 32 bits divided into 4 otects. Subnet masks work like a kind of filter against which the 32 bits of an IP address can be OR&rsquo;ed. To make this concrete let&rsquo;s take the IP address <code>192.168.0.2</code> and the subnet mask <code>255.255.255.0</code> and find the host and network portions.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Decimal</th>
+<th>Binary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IPv4</td>
+<td><code>192.168.0.2</code></td>
+<td><code>1100 0000 - 1010 1000 - 0000 0000 - 0000 0010</code></td>
+</tr>
+<tr>
+<td>Subnet Mask</td>
+<td><code>255.255.255.0</code></td>
+<td><code>1111 1111 - 1111 1111 - 1111 1111 - 0000 0000</code></td>
+</tr>
+<tr>
+<td>OR</td>
+<td><code>192.168.0.0</code></td>
+<td><code>1100 0000 - 1010 1000 - 0000 0000 - 0000 0000</code></td>
+</tr>
+</tbody>
+</table>
+<p>By OR-ing the bits of the IP with the bits of the subnet mask, we are left with the host network. There is a condition for subnet masks. A subnet mask is 32 bits, which is always a contiguous series of 1s followed by a contiguous series of 0s. This means that, when converted to binary, a subnet mask will have a first half that is all 1&rsquo;s and a second half that is all 0&rsquo;s.</p>
+<h3 id="host-address-and-broadcast-address">Host Address and Broadcast Address<a hidden class="anchor" aria-hidden="true" href="#host-address-and-broadcast-address">#</a></h3>
+<p>An important thing to know about subnets is that two IPs in any given subnet are always reserved. The first is the lowest IP in that subnet. The lowest IP in a subnet is the <strong>network address</strong>. The network address uniquely identifies the network and is not used for hosts in that network. The second reserved address is the <strong>broadcast address</strong>. The broadcast address is the highest/last IP address available in the network. Any message sent to the broadcast address of a network is sent to all machines on that network.</p>
+<h1 id="useful-formulas-and-notes">Useful Formulas and Notes<a hidden class="anchor" aria-hidden="true" href="#useful-formulas-and-notes">#</a></h1>
+<h3 id="number-of-ips-in-a-cidr-block">Number of IPs in a CIDR Block<a hidden class="anchor" aria-hidden="true" href="#number-of-ips-in-a-cidr-block">#</a></h3>
+<p><code>2^(32 - CIDR block leading bits)</code></p>
+<h3 id="number-of-unique-address-of-x-bits">Number of Unique Address of x Bits<a hidden class="anchor" aria-hidden="true" href="#number-of-unique-address-of-x-bits">#</a></h3>
+<p><code>2^x</code></p>
+<h3 id="largest-ip-of-x-bits">Largest IP of x Bits<a hidden class="anchor" aria-hidden="true" href="#largest-ip-of-x-bits">#</a></h3>
+<p><code>2^(x - 1) # 0 is one of the available values so subtract 1</code></p>
+<h3 id="resizing-cidr-blocks">Resizing CIDR blocks<a hidden class="anchor" aria-hidden="true" href="#resizing-cidr-blocks">#</a></h3>
+<p>Every time you decrease the number of bits in the network portion of an address you add bits to the host portion. This means that more IPs are available.
+For every bit that you decrease the network potion by, the number of available IPs in the host portion of the network number is doubled.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/networking/">Networking</a></li>
+      <li><a href="http://localhost:1313/tags/explainer/">Explainer</a></li>
+      <li><a href="http://localhost:1313/tags/cloud/">Cloud</a></li>
+      <li><a href="http://localhost:1313/tags/ip/">IP</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="http://localhost:1313/posts/05-intro-to-k8s-autoscaling/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Intro to K8s Autoscaling</span>
+  </a>
+  <a class="next" href="http://localhost:1313/posts/03-locust-load-testing/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Load Testing Applications with Locust</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2024 <a href="http://localhost:1313/">Ben Mask</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

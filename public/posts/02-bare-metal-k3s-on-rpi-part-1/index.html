@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Part 1: Building a Bare-metal Kubernetes Cluster on Raspberry Pis | Ben Mask</title>
+<meta name="keywords" content="kubernetes, raspberry pi, k3s, clusters, homelab, ansible, tailscale, networking, pi-hole, cloud">
+<meta name="description" content="Big Idea From the start of my career, I have been fascinated by Kubernetes. I love distributed systems and the rich history of how we have arrived where we are today with distributed computing. We live in the ongoing evolution of our communal vision for cloud computing. In the early years, the vision was to present a homogenous Unix-like interface for managing an underlying collection of servers such as BOINC. Now, we live in the world of many small virtualized unix environments distributed across servers and sharing compute.">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/02-bare-metal-k3s-on-rpi-part-1/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.fc220c15db4aef0318bbf30adc45d33d4d7c88deff3238b23eb255afdc472ca6.css" integrity="sha256-/CIMFdtK7wMYu/MK3EXTPU18iN7/MjiyPrJVr9xHLKY=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/02-bare-metal-k3s-on-rpi-part-1/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="Ben Mask (Alt + H)">Ben Mask</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">Home</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Part 1: Building a Bare-metal Kubernetes Cluster on Raspberry Pis
+    </h1>
+    <div class="post-meta"><span title='2024-07-10 20:29:01 -0400 EDT'>July 10, 2024</span>&nbsp;·&nbsp;10 min
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#big-idea" aria-label="Big Idea">Big Idea</a></li>
+                <li>
+                    <a href="#goals--requirements" aria-label="Goals &amp; Requirements">Goals &amp; Requirements</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#portability" aria-label="Portability">Portability</a></li>
+                <li>
+                    <a href="#isolation--security" aria-label="Isolation &amp; Security">Isolation &amp; Security</a></li>
+                <li>
+                    <a href="#persistent-storage--back-ups" aria-label="Persistent Storage &amp; Back-ups">Persistent Storage &amp; Back-ups</a></li>
+                <li>
+                    <a href="#https" aria-label="HTTPs">HTTPs</a></li>
+                <li>
+                    <a href="#dns" aria-label="DNS">DNS</a></li></ul>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#architecture" aria-label="Architecture">Architecture</a></li>
+                <li>
+                    <a href="#build-list" aria-label="Build List">Build List</a></li>
+                <li>
+                    <a href="#networking" aria-label="Networking">Networking</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#configuring-the-cluster-router" aria-label="Configuring the Cluster Router">Configuring the Cluster Router</a><ul>
+                        
+                <li>
+                    <a href="#wan-settings" aria-label="WAN Settings">WAN Settings</a></li>
+                <li>
+                    <a href="#lan-settings" aria-label="LAN Settings">LAN Settings</a></li>
+                <li>
+                    <a href="#dhcp-settings" aria-label="DHCP Settings">DHCP Settings</a></li>
+                <li>
+                    <a href="#static-node-ips" aria-label="Static Node IPs">Static Node IPs</a></li></ul>
+                </li>
+                <li>
+                    <a href="#adding-a-tailscale-subnet-router" aria-label="Adding a TailScale Subnet Router">Adding a TailScale Subnet Router</a></li></ul>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#k3s" aria-label="K3s">K3s</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#installation" aria-label="Installation">Installation</a></li></ul>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#conclusion" aria-label="Conclusion">Conclusion</a>
+                </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="big-idea">Big Idea<a hidden class="anchor" aria-hidden="true" href="#big-idea">#</a></h1>
+<p><img loading="lazy" src="images/cluster.png" alt="cluster"  />
+</p>
+<p>From the start of my career, I have been fascinated by Kubernetes. I love distributed systems and the rich history of how we have arrived where we are today with distributed computing. We live in the ongoing evolution of our communal vision for cloud computing. In the early years, the vision was to present a homogenous Unix-like interface for managing an underlying collection of servers such as BOINC. Now, we live in the world of many small virtualized unix environments distributed across servers and sharing compute.</p>
+<p>One of the main drivers of our current state has been the advent of containerization and container orchestration. The goal of this blog is to go over the considerations and design of my bare-metal Raspberry Pi Kubernetes cluster. This project was my adventure in going beyond being a user of Kubernetes offerings from various cloud providers to understanding the physical magic behind the scenes.</p>
+<blockquote>
+<p><strong>Full disclaimer:</strong> This project is largely based-off Anthony Simon&rsquo;s project for a similar build. I found that his blog post lacked a lot of details though so I want to capture those missing parts here and go into more detail about my setup. You can find his great post <a href="https://anthonynsimon.com/blog/kubernetes-cluster-raspberry-pi/">here</a>!</p>
+</blockquote>
+<p>You can find the Ansible scripts and Helm charts that I manage for this project on my Github:</p>
+<ul>
+<li><a href="https://github.com/atmask/helm-charts">Helm Charts</a></li>
+<li><a href="https://github.com/atmask/homelab-ansible">Ansible Scripts</a></li>
+</ul>
+<h1 id="goals--requirements">Goals &amp; Requirements<a hidden class="anchor" aria-hidden="true" href="#goals--requirements">#</a></h1>
+<p>Before diving into the build list, architecture, and design for my build I want to review what, for me, were the goals and requirements for setting up this project.</p>
+<h3 id="portability">Portability<a hidden class="anchor" aria-hidden="true" href="#portability">#</a></h3>
+<p>First, portability. I am in a season of life that is nomadic. I am in different apartments for a year or two at a time. I want a build that I can easily unplug, bring somewhere else, and plug in without needing any extra steps for setup.</p>
+<h3 id="isolation--security">Isolation &amp; Security<a hidden class="anchor" aria-hidden="true" href="#isolation--security">#</a></h3>
+<p>Second, and closely related, is isolation. I want the network that my cluster runs on to be on a subnet isolated from the LAN network to which it connects. I want all IPs to be in their own non-overlapping address space. I also don&rsquo;t want my services available publicly or to anyone connected to the LAN of my home network. They should only be accessible via a VPN connection to the cluster network or wireless/wired connection to the cluster LAN.</p>
+<h3 id="persistent-storage--back-ups">Persistent Storage &amp; Back-ups<a hidden class="anchor" aria-hidden="true" href="#persistent-storage--back-ups">#</a></h3>
+<p>Third, I wanted my cluster to support some implementation PVs and PVCs for data persistence. I wanted this to be affordable and to be reliable. This ruled out buying SSD storage for each node and using a distributed file store like Rook/Ceph or Longhorn. It also ruled out using hostPath storage on SD cards. (Spoiler) My final result uses a single Terabyte SSD that is running as an SMB share which can be mounted via the SMB csi.</p>
+<h3 id="https">HTTPs<a hidden class="anchor" aria-hidden="true" href="#https">#</a></h3>
+<p>My fourth requirement is that all of my services should be available over an HTTPs connection. Sure, the VPN is encrypted, however, I want TLS termination at the cluster and not only the VPN. Further, I don&rsquo;t want browsers complaining that the site I am visiting is not secure. That is a bother for me and a red flag for any friends or family who connect to my services.</p>
+<h3 id="dns">DNS<a hidden class="anchor" aria-hidden="true" href="#dns">#</a></h3>
+<p>Lastly, I want my services accessible via DNS records when a user is connected via VPN. I want the DNS server to sit on the cluster LAN network and become the primary DNS server for users when they connect to the network. This keeps my <code>A records</code> off of public DNS servers.</p>
+<h1 id="architecture">Architecture<a hidden class="anchor" aria-hidden="true" href="#architecture">#</a></h1>
+<p>The following diagram lays out my planned network topology for this build. I am a big fan of Brandon Sanderson&rsquo;s <em>Stormlight Archives</em> and so I have named my nodes after the Radiant orders.</p>
+<p>I aim to have a <code>10.100.0.0/24</code> CIDR allocated to my cluster network. I will have a dedicated router that manages this subnet. The router and nodes will all share a wired ethernet connection through an L2 Gigabit PoE network switch. Within that cluster network, I will configure the DHCP server to assign IPs to the network devices from a subset of the network IPs available. This will allow me, later on, to use another non-overlapping IP range within the cluster CIDR for MetalLB. Kubernetes does not provide a default implementation for allocating IPs to LoadBalancer services. MetalLB is one solution to this problem that I will explore in more depth later on. From the perspective of my cluster network, the home network will be the WAN. All internet-bound traffic will traverse the cluster router gateway and then my home router.</p>
+<p>Another detail of this design is the SMB share. I have a 1TB SSD physically mounted to one of my RPi nodes. This RPi exposes the 1TB drives as an SMB share that can be mounted by other devices on the network. There is a Kubernetes SMB Container Storage Interface (CSI) driver that supports mounting SMB shares via PVCs. This is how I will implement my poor man&rsquo;s persistent storage.</p>
+<blockquote>
+<p><strong>Note:</strong> This is not intended to be a HA cluster. I only have a single master node. The numbers aren&rsquo;t ideal for consensus. In this build, I just want to learn the basics.</p>
+</blockquote>
+<p><img loading="lazy" src="images/network4.png" alt="network diagram"  />
+</p>
+<h1 id="build-list">Build List<a hidden class="anchor" aria-hidden="true" href="#build-list">#</a></h1>
+<p>The following is my build list for the project:</p>
+<ul>
+<li><a href="https://www.amazon.ca/UCTRONICS-Upgraded-Enclosure-Raspberry-Compatible/dp/B09S11Q684/ref=sr_1_4?crid=JEX54GWP1JOC&amp;dib=eyJ2IjoiMSJ9.C3MConprGuDjhcyor3xqbHFZTaOYZQ-UMXrywALspdi5SDWO1Y-sxxMRB3z7amREyELAPupHf69L9M0_G6tXn6-eTOy3oFlSRUIhCTcblHSS83Ybn9AOklxMtFUxUUjyEIzgQ55EoAzs2k4aBAdiq3LjLorJwixpeA2lcnQ0ASsZKZmKcsLxN71W4tF8eZyrDuyV2rqy1jPP1ULJoX2kTgTKjnDKSb7gomFYg37cI1r8BPEU_08oIDUHYRJb40ZIqjnUrh8zC9kDpdL0HTpd5veHNOy4vwbqCbKoVQa9xxY.TuM3a7L5F5Lg9ZPACoqnV1JD-cb_h72fsiNueHpHLek&amp;dib_tag=se&amp;keywords=raspberry+pi+cluster+case&amp;qid=1720281735&amp;sprefix=raspberry+pi+cluster+cas%2Caps%2C300&amp;sr=8-4">UCTronics RPi Cluster Case</a> x1</li>
+<li><a href="https://www.raspberrypi.com/products/raspberry-pi-4-model-b/">Raspberry Pi 4b 8Gb</a> x1</li>
+<li><a href="https://www.raspberrypi.com/products/raspberry-pi-4-model-b/">Rapsberry Pi 4b 2Gb</a> x3</li>
+<li><a href="https://www.amazon.ca/dp/B07LG1QZR8?psc=1&amp;ref=ppx_yo2ov_dt_b_product_details">1 TB SSD</a> x1</li>
+<li><a href="https://www.amazon.ca/dp/B0C3CRVLCL?psc=1&amp;ref=ppx_yo2ov_dt_b_product_details">SATA to USB 3.0 Adapter</a> x 1</li>
+<li><a href="https://www.amazon.ca/TP-Link-TL-SG1005P-Gigabit-Ethernet-Desktop/dp/B076HZFY3F/ref=sr_1_5?crid=GOMB14TBDH4M&amp;dib=eyJ2IjoiMSJ9.rFy2gUfUpSpNlta74Vt4L7FuHCFtqLlYxHkzGfeaHqfVvdsgsliKExRvTLZfUVOZsJMi6oV_oeiBYjJdc2Ua_d1O9TOlRuSTlxZ0uURcW-Ho48Sac0I01w-HGElUcmY20FcR77wO4VBxcUM9JZ_DoP95RgkPdyIEnUCr_i9yQjEL8Ehb7Mb-Xa-1okeV4VV059LynJa_4W4GCCft1z8wmyg8brwDJViqZCjj6DG4ntWbnoakArdMK_UyexcLV_PDAoFfL_EL8oRz3yDI7CH8tx4ewngLL4atMH26c0he-fQ.v3DpWQNo3aLZ6l1y5IfHnv12MRZ-LPJWjYLpn3H1YJI&amp;dib_tag=se&amp;keywords=PoE&amp;qid=1720282349&amp;sprefix=poe%2Caps%2C153&amp;sr=8-5">TP-Link 5 port Gigabit PoE Network Switch</a> x1</li>
+<li><a href="https://www.amazon.ca/TP-Link-TL-WR802N-Wireless-Repeater-300Mbps/dp/B00TQEX8BO/ref=sr_1_7?crid=PDF9HEJ98DVH&amp;dib=eyJ2IjoiMSJ9.KvQ5dyqiNZlOnIsE0BDB9vz-N3ufqlD5goF5RYeXPxn6OF42YXBAlyW2oAtM3n0D8WTKEqcpO6_0mMsUFoZpzFk5YE2XI4r7-_4mC0b-WdkabUp_L8vIkkx9CmG_g2gL_6Srnx6Q6AO36fY1L4z3tg9tB-Xz-8P1cc-EE7tFSALy0BRZa1PPUgbcuWEJaifE3ZcJ1k9jwFDiBpPJ4TgRukyoXAMZekuvOR2Y0mDcdFxbkgYvS5GQ-dY9HdeG56me_TTno__LS8Py-dB-32N_gy4TSELaPbeCnIgnhdDqegg.dC74wSQ2lqQESwGyzGGA2w6ck6SzE4lhHcApK2mE2N4&amp;dib_tag=se&amp;keywords=TP-Link+nano&amp;qid=1720282387&amp;sprefix=tp-link+nano%2Caps%2C159&amp;sr=8-7">TP-Link Nano Router</a> x1</li>
+<li><a href="https://www.amazon.ca/dp/B01JO3FM7Y/?coliid=I2M4BPL0WE6NVE&amp;colid=3NYBNJHEPFCR4&amp;psc=1&amp;ref_=list_c_wl_lv_ov_lig_dp_it">0.3M Ethernet Cables</a> x4</li>
+<li><a href="https://www.amazon.ca/dp/B082ZLDMZ6?psc=1&amp;ref=ppx_yo2ov_dt_b_product_details">RPi PoE Hat</a> x4</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> I do not receive any commission when you purchase via the above the links. These are just what worked for my build and are what I recommend.</p>
+</blockquote>
+<h1 id="networking">Networking<a hidden class="anchor" aria-hidden="true" href="#networking">#</a></h1>
+<p>With a project like this, you need to start small and work up. Realistically, this means breaking up your end goal into small problems that you can manageably troubleshoot and solve as you go. Trying to take on too much with so many variables and unknowns in one swing will be fatal for a project of this kind. I have broken down this section into the incremental steps I took to accomplish my vision for the networking. These steps were goals I wanted to achieve before approaching the problem of setting up Kubernetes.</p>
+<p>To start, I linked my TP-Link router and each of the Pis to the network switch via ethernet cables. Using the PoE hat on each Pi the PoE network switch was also able to power the Pis without the need for additional cables.</p>
+<h3 id="configuring-the-cluster-router">Configuring the Cluster Router<a hidden class="anchor" aria-hidden="true" href="#configuring-the-cluster-router">#</a></h3>
+<p>When setting up the TP-Link Router the goal is to create a subnet. The TP-Link router will be a gateway to my home network LAN and from there traffic will be routed to the internet via my home network route. To do this, I configured the TP-Link Router in WISP mode. In WISP mode, the router adopts the home network as the WAN network and then broadcasts its own LAN network to which wired/wireless devices can connect. This results in two isolated networks.</p>
+<h4 id="wan-settings">WAN Settings<a hidden class="anchor" aria-hidden="true" href="#wan-settings">#</a></h4>
+<p>In this configuration, your TP-Link cluster router will be assigned an IP on your home network. The gateway for the cluster router will be the IP of your home network router.</p>
+<h4 id="lan-settings">LAN Settings<a hidden class="anchor" aria-hidden="true" href="#lan-settings">#</a></h4>
+<p>In the TP-Link router&rsquo;s LAN settings, you&rsquo;ll need to configure the LAN. This is where you can specify the subnet that your cluster nodes will run on. I chose to use the <code>10.100.0.0/24</code> CIDR for my cluster network. This gives me 254 IPv4 addresses to work with with (256 minus the broadcast ip and network address) which is more than enough for my little cluster.</p>
+<h4 id="dhcp-settings">DHCP Settings<a hidden class="anchor" aria-hidden="true" href="#dhcp-settings">#</a></h4>
+<p>In the TP-Link router DHCP settings you&rsquo;ll want to configure the IP range (within your LAN subnet) that the DHCP server can pull from when assigning IPs to devices joining the cluster network. A DHCP server is a Dynamic Host Configuration Protocol server. When new devices join a network they send out a discovery call to the DHCP server. The DHCP server then returns an offer containing an IP for the devices to use in the network and other configurations such as the DNS server to use.</p>
+<p>Later on, we&rsquo;ll come back here and configure the DNS.</p>
+<h4 id="static-node-ips">Static Node IPs<a hidden class="anchor" aria-hidden="true" href="#static-node-ips">#</a></h4>
+<p>For this build, I did not want to bother with IPs changing for the nodes in my cluster. For this reason, I assigned each node linked to the network a static IP. You can do this in the DHCP configuration settings of the router so that when the nodes get a new DHCP lease they always get the same IP</p>
+<h3 id="adding-a-tailscale-subnet-router">Adding a TailScale Subnet Router<a hidden class="anchor" aria-hidden="true" href="#adding-a-tailscale-subnet-router">#</a></h3>
+<p>Out of my four Raspberry Pis, I have committed three to the cluster and one to running a TailScale subnet router and Pi-Hole. The stoneward node is the Pi that I have chosen to use for hosting my TailScale subnet router and Pi-Hole DNS server. TailScale is a VPN service that builds on top of simplifies Wireguard by delegating the management of peer certificates among new peers to the TailScale control plane. Using TailScale you can run a node as a Subnet Router to route traffic from other users of the VPN network to IP space behind the subnet router. I will take advantage of this functionality by converting the stoneward node into a subnet router that handles routes to my cluster network&rsquo;s CIDR range. This means, that when connected to the VPN, I can reach all of my nodes and services without exposing them to the public internet.</p>
+<p>The install scripts for TailScale can be found in my Ansible repository. After installing TailScale and advertising my cluster subnet range (note: you have to also approve this node advertising that range in the TailScale Admin console) I then validated that my personal dev laptop could ssh into each of the other nodes linked to my subnet via the PoE network switch.</p>
+<h1 id="k3s">K3s<a hidden class="anchor" aria-hidden="true" href="#k3s">#</a></h1>
+<p>For this project I chose to run K3s. K3s is a lightweight Kubernetes binary that runs with significantly smaller memory requirements. I wanted to find a lightweight solution that didn&rsquo;t feel like a compromise and so I was satisfied to run k3s as it is fully Kubernetes compliant, included some functionality out of the box like coredns, and could use an etcd data store.</p>
+<h3 id="installation">Installation<a hidden class="anchor" aria-hidden="true" href="#installation">#</a></h3>
+<p>For my K3s installation, I chose to override some of the default tools in favour of tools with which I had more experience. In particular, I replaced the default Flannel CNI with Calico, the Traefik Ingress controller with Nginx Ingress, and ServiceLB with MetalLB. To see all of the installation scripts check out my ansible automation linked at the start of this article. The configurations for my custom tools were installed via Helm and all of the configurations can be found in the Helm Chart repo also linked alongside my Ansible repo.</p>
+<p>One thing to note about my installation of K3s. K3s supports two types of nodes: <code>k3s-servers</code> and <code>k3s-agents</code>. The <code>k3s-server</code> nodes are responsible for the control plane and datastore components. The <code>k3s-agents</code> do not have any of those responsibilities and just run the kubelet, CRI, and CNI. I chose my 8Gb Raspberry Pi as the single <code>k3s-server</code> node for this cluster. The reasoning for this was two-fold, First I wanted to use etcd since I haven&rsquo;t before. Second, I only had a single SSD for this project and did not want any datastore components running on nodes that only had an unreliable SD card.</p>
+<h1 id="conclusion">Conclusion<a hidden class="anchor" aria-hidden="true" href="#conclusion">#</a></h1>
+<p>At this point in time, I had the cluster networking set up and K3s installed on each node. Two of the Raspberry Pis, lightweaver and windrunner, were configured as <code>k3s-agent</code> nodes and Bondsmith, my 8Gb Pi, was running as the single <code>k3s-server</code>. With that, I will bring this post to a close. In part 2, I will review my configuration of Nginx Ingress, MetalLB and, and Cert-Manager for managing incoming traffic to my cluster services. Part 2 will also cover how I configured my 1 TB SSD drive as an SMB share to dynamically provision persistent volumes for my workloads.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/kubernetes/">Kubernetes</a></li>
+      <li><a href="http://localhost:1313/tags/raspberry-pi/">Raspberry Pi</a></li>
+      <li><a href="http://localhost:1313/tags/k3s/">K3s</a></li>
+      <li><a href="http://localhost:1313/tags/clusters/">Clusters</a></li>
+      <li><a href="http://localhost:1313/tags/homelab/">Homelab</a></li>
+      <li><a href="http://localhost:1313/tags/ansible/">Ansible</a></li>
+      <li><a href="http://localhost:1313/tags/tailscale/">Tailscale</a></li>
+      <li><a href="http://localhost:1313/tags/networking/">Networking</a></li>
+      <li><a href="http://localhost:1313/tags/pi-hole/">Pi-Hole</a></li>
+      <li><a href="http://localhost:1313/tags/cloud/">Cloud</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="http://localhost:1313/posts/02-bare-metal-k3s-on-rpi-part-2/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Part 2: Building a Bare-metal Kubernetes Cluster on Raspberry Pis</span>
+  </a>
+  <a class="next" href="http://localhost:1313/posts/01-getting-started-w-hugo/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Getting Started with Hugo &amp; GitHub Pages</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2024 <a href="http://localhost:1313/">Ben Mask</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

@@ -1,0 +1,45 @@
+baseURL: https://blog.fallow.app/
+languageCode: en-us
+title: Ben Mask
+theme:
+  - PaperMod
+menus:
+  main:
+    - name: Posts
+      url: posts/
+      weight: 10
+    - name: Tags
+      url: tags/
+      weight: 20
+    - name: Search
+      url: search/
+      weight: 30
+services:
+  googleAnalytics:
+    ID: G-H8WZT724E8 ## Bound to my domain. This is fine and not a leak
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON # necessary for search
+
+params:
+  assets:
+    favicon: "/favicon.ico"
+    favicon16x16: "/favicon-16x16.png"
+    favicon32x32: "/favicon-32x32.png"
+  homeInfoParams:
+    title: Hi there!
+    # subtitle: Software Engineer/DevOps/Cloud Developer
+    Content: "My name's Ben. Welcome to my blog. I'm a software engineer with a passion for understanding systems, interactions, abstractions, and architecture. I'm always looking for new opportunities to learn and grow. Feel free to reach out if you're interested in any of my work and want to chat!"
+  socialIcons: # optional
+    - name: Github
+      url: https://github.com/atmask
+    - name: LinkedIn
+      url: https://www.linkedin.com/in/ben-mask-936b49185/
+    - name: email
+      url: mailto:benjaminajm@gmail.com
+  ShowCodeCopyButtons: true
+  ShowBreadCrumbs: true
+  ShowReadingTime: true
+  ShowPostNavLinks: true

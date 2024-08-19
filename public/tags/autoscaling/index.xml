@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Autoscaling on Ben Mask</title>
+    <link>http://localhost:1313/tags/autoscaling/</link>
+    <description>Recent content in Autoscaling on Ben Mask</description>
+    <generator>Hugo -- 0.128.2</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 10 Aug 2024 19:57:08 -0400</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/autoscaling/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Intro to K8s Autoscaling</title>
+      <link>http://localhost:1313/posts/05-intro-to-k8s-autoscaling/</link>
+      <pubDate>Sat, 10 Aug 2024 19:57:08 -0400</pubDate>
+      <guid>http://localhost:1313/posts/05-intro-to-k8s-autoscaling/</guid>
+      <description>Big Idea Autoscaling is a key technology that builds on the elasticity of distributed cloud computing. To understand autoscaling in the Kubernetes environment, it will be important to understand the basic enabling technologies: containerization and distributed computing. By leveraging hese two technologies, Kubernetes supports horizontal pod autoscaling (hpa) and cluster autoscaling. In this post I will dive into some brief background on Containerization and distributed computing (just enough to be dangerous) and then take a more focused look at the horizontal autoscaling functionality of Kubernetes.</description>
+    </item>
+  </channel>
+</rss>

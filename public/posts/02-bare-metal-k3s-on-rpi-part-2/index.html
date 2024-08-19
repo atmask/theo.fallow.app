@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Part 2: Building a Bare-metal Kubernetes Cluster on Raspberry Pis | Ben Mask</title>
+<meta name="keywords" content="kubernetes, raspberry pi, k3s, clusters, homelab, ansible, tailscale, networking, pi-hole, cloud">
+<meta name="description" content="Big Idea In part 1 of this post, I covered the basics of getting started building my Kubernetes cluster on Raspberry Pis. In particular, I laid out my goals and requirements, the build list, the network topology and setup, and the installation of K3s on each of the nodes. I recommend going back and checking out that post first if you haven&rsquo;t already (Part 1: Building a Bare-metal Kubernetes Cluster on Raspberry Pis).">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/02-bare-metal-k3s-on-rpi-part-2/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.fc220c15db4aef0318bbf30adc45d33d4d7c88deff3238b23eb255afdc472ca6.css" integrity="sha256-/CIMFdtK7wMYu/MK3EXTPU18iN7/MjiyPrJVr9xHLKY=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/02-bare-metal-k3s-on-rpi-part-2/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="Ben Mask (Alt + H)">Ben Mask</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">Home</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Part 2: Building a Bare-metal Kubernetes Cluster on Raspberry Pis
+    </h1>
+    <div class="post-meta"><span title='2024-07-21 20:30:55 -0400 EDT'>July 21, 2024</span>&nbsp;·&nbsp;17 min
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#big-idea" aria-label="Big Idea">Big Idea</a></li>
+                <li>
+                    <a href="#load-balancing-ingress-and-ssltls-management" aria-label="Load-Balancing, Ingress, and SSL/TLS Management">Load-Balancing, Ingress, and SSL/TLS Management</a><ul>
+                        
+                <li>
+                    <a href="#metallb-concepts" aria-label="MetalLB Concepts">MetalLB Concepts</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#ippools" aria-label="IPPools">IPPools</a></li>
+                <li>
+                    <a href="#external-announcements-and-layer-2-routing" aria-label="External Announcements and Layer 2 Routing">External Announcements and Layer 2 Routing</a></li>
+                <li>
+                    <a href="#deploying-metallb" aria-label="Deploying MetalLB">Deploying MetalLB</a></li>
+                <li>
+                    <a href="#validate-with-loadbalancer" aria-label="Validate with LoadBalancer">Validate with LoadBalancer</a></li></ul>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#deploying-nginx-ingress" aria-label="Deploying Nginx-Ingress">Deploying Nginx-Ingress</a></li>
+                <li>
+                    <a href="#configuring-cert-manager" aria-label="Configuring Cert-Manager">Configuring Cert-Manager</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#installing-cert-manager" aria-label="Installing Cert-Manager">Installing Cert-Manager</a></li></ul>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#local-dns-management-with-pi-hole" aria-label="Local DNS Management with Pi-Hole">Local DNS Management with Pi-Hole</a></li></ul>
+                </li>
+                <li>
+                    <a href="#persistent-storage" aria-label="Persistent Storage">Persistent Storage</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#creating-the-smb-share" aria-label="Creating the SMB share">Creating the SMB share</a></li>
+                <li>
+                    <a href="#setting-up-the-smb-csi-driver" aria-label="Setting up the SMB CSI Driver">Setting up the SMB CSI Driver</a></li>
+                <li>
+                    <a href="#testing-pvcpv-creation" aria-label="Testing PVC/PV Creation">Testing PVC/PV Creation</a></li></ul>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#backups-with-rclone-and-backblaze" aria-label="Backups with rclone and Backblaze">Backups with rclone and Backblaze</a><ul>
+                        <ul>
+                        
+                <li>
+                    <a href="#backing-up-the-smb-drive" aria-label="Backing up the SMB drive">Backing up the SMB drive</a></li>
+                <li>
+                    <a href="#backing-up-etcd" aria-label="Backing up etcd">Backing up etcd</a>
+                </li>
+            </ul>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="big-idea">Big Idea<a hidden class="anchor" aria-hidden="true" href="#big-idea">#</a></h1>
+<p>In part 1 of this post, I covered the basics of getting started building my Kubernetes cluster on Raspberry Pis. In particular, I laid out my goals and requirements, the build list, the network topology and setup, and the installation of K3s on each of the nodes. I recommend going back and checking out that post first if you haven&rsquo;t already (<a href="https://blog.fallow.app/posts/02-bare-metal-k3s-on-rpi-part-1/">Part 1: Building a Bare-metal Kubernetes Cluster on Raspberry Pis</a>).</p>
+<p>A summary from that post is that I created the subnet <code>10.100.0.0/24</code> on my home network for the cluster network. Using DHCP I reserved a small address space of IPs for my nodes and statically assigned the node IPs from within that range. Of my four RPis, three will be part of the cluster. The fourth node will not run as part of the cluster but will instead run a TailScale subnet router and Pi-Hole for DNS resolution on the cluster network.</p>
+<p>In this post, I will review how I configured the Nginx Ingress controller and Cert-Manager for managing HTTPs traffic to my cluster. I will also cover my persistent storage solution that implements PV&rsquo;s in Kubernetes using an SMB share. Finally, I will briefly show my backup strategy that leverages rclone and Backblaze B2 storage.</p>
+<p>As usual, all of my configurations for deploying charts can be found on my GitHub: <a href="https://github.com/atmask/helm-charts/tree/main">https://github.com/atmask/helm-charts/tree/main</a></p>
+<h1 id="load-balancing-ingress-and-ssltls-management">Load-Balancing, Ingress, and SSL/TLS Management<a hidden class="anchor" aria-hidden="true" href="#load-balancing-ingress-and-ssltls-management">#</a></h1>
+<p>Now that I had my cluster up and running with a CNI installed (I&rsquo;ll do more posts about Calico CNI in the future) I wanted to get the networking setup to access services on my cluster. To achieve this, I added three different installations to my cluster: MetalLB, Nginx Ingress, and Cert-Manager.</p>
+<p>Kubernetes has a resource type called Services. Services function as load balancers by providing a single IP for balancing traffic among a backing set of ephemeral pods running a workload. Kubernetes services resources have a few kinds, namely, ClusterIP, NodePort, and LoadBalancer. There are default implementations for the first two service types in Kubernetes but none for LoadBalancer-type services. Most major cloud providers you use will have their own implementation with their Kubernetes offerings that will configure a Load Balancer with a public IP from their platform to manage the incoming traffic to your service. MetalLB is a solution for those running their own Kubernetes clusters to support services of type LoadBalancer.</p>
+<p>Nginx-Ingress is an Nginx-based solution for managing network traffic entering the cluster. To use the nginx ingress controller, you expose it behind a LoadBalancer. All incoming traffic can then be routed based on various routing rules such as the path to other services in the cluster. This has the advantage of having a single point for managing TLS termination and in cloud environments can save you the cost additional LBs would incur if you exposed each service via an LB.</p>
+<p>Finally, Cert-Manager. Cert-Manager is an X.509 certificate management service for Kubernetes. It integrates nicely with Let&rsquo;s Encrypt for automatically generating and rotating SSL/TLS certs on domains that you own. It also (with some configuration) integrates with Nginx Ingress for automatically provisioning and managing certificates for new domains and subdomains.</p>
+<h2 id="metallb-concepts">MetalLB Concepts<a hidden class="anchor" aria-hidden="true" href="#metallb-concepts">#</a></h2>
+<h4 id="ippools">IPPools<a hidden class="anchor" aria-hidden="true" href="#ippools">#</a></h4>
+<p>MetalLB is not able to give you IP addresses out of thin air. This means that you will need to tell it which IP addresses it can allocate to LoadBalancer services by defining IPPools for your MetalLB installation to use. This IPPool should not overlap with the IP range that the DHCP is configured to assign IPs from. This is where it may be helpful to share the network topology again:
+<img loading="lazy" src="images/network4.png" alt="network diagram"  />
+</p>
+<h4 id="external-announcements-and-layer-2-routing">External Announcements and Layer 2 Routing<a hidden class="anchor" aria-hidden="true" href="#external-announcements-and-layer-2-routing">#</a></h4>
+<p>MetalLB can assign an IP to your LoadBalancer Kubernetes service, however, it also needs to make the network outside of your cluster pod traffic aware of these IPs to make them routable. MetalLB has two different modes for achieving this goal: BGP and Layer 2. I will focus on Layer 2 mode as that is what I am running and familiar with.</p>
+<p>MetalLB in Layer 2 mode works by taking an available IP from the IPPool that you previously allocated and assigning that IP to a node in your cluster. From an outside perspective, it looks as if the node has multiple IPs on the network. This is called Layer 2 mode because of how it makes use of ARP (address resolution protocol). ARP is a protocol that takes place in layer 2 of the OSI networking model. In short, ARP works by the source machine sending out a broadcast message for the destination IP of the packet it is trying to route. If a machine has that IP leased then it responds to the original ARP request by returning its MAC address. The MAC address is then used in layer 2 networking to send the packet on to the node in the cluster.</p>
+<p><img loading="lazy" src="images/arp.png" alt="arp diagram"  />
+</p>
+<p>Once the packet is routed to the node in the cluster then <code>kube-proxy</code> takes over and routes the packet to one of the services. <code>kubey-proxy</code> is an agent that manages iptables in the cluster to support the routing of packets from the virtual IPs of services to the IPs of pods assigned via the CNI. This may be the subject of another post in the future but for now, I&rsquo;d refer you to this article: <a href="https://medium.com/@amroessameldin/kube-proxy-what-is-it-and-how-it-works-6def85d9bc8f">Kube-Proxy: What is it and How it Works</a></p>
+<h4 id="deploying-metallb">Deploying MetalLB<a hidden class="anchor" aria-hidden="true" href="#deploying-metallb">#</a></h4>
+<p>Now, to the fun part! MetalLB can be deployed via Helm charts to your cluster. The Helm chart can be found on Artifact Hub. The first install of the MetalLB chart additionally installs custom CRDs to the cluster. CRDs are &ldquo;Custom Resource Definitions&rdquo; and allow for the creation of custom resources (like pods or deployments) but more relevant to a specific application. In the case of MetalLB, we care about the <code>IPAddressPool</code> and <code>L2Advertisement</code> CRDs. After the initial install of the chart, we will want to deploy an <code>IPAddressPool</code> resource to to tell MetalLB what IP range we have set aside in our subnet for LoadBalancer IPs. We will also deploy an <code>L2Advertisement</code> resource that tells Metallb to advertise IPs in that pool via Layer 2 networking.</p>
+<p>I prefer to use Helm&rsquo;s subcharting functionality to keep all of my chart configurations and versions in VCS over time but, in general, the installation process would look like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>helm install -n metallb metallb oci://registry-1.docker.io/bitnamicharts/metallb --create-namespace
+</span></span></code></pre></div><p>Then create the <code>IPAddressPool</code> in <code>ippool.yaml</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#75715e"># The address-pools lists the IP addresses that MetalLB is</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># allowed to allocate. You can have as many</span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># address pools as you want.</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">IPAddressPool</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># A name for the address pool. Services can request allocation</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># from a specific address pool using this name.</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">lb-ip-pool</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># A list of IP address ranges over which MetalLB has</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># authority. You can list multiple ranges in a single pool, they</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># will all share the same settings. Each range can be either a</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># CIDR prefix, or an explicit start-end range of IPs.</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">addresses</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">10.100.0.50-10.100.0.75</span>
+</span></span></code></pre></div><p>and the <code>L2Advertisement</code> in <code>advertisement-l2.yaml</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">metallb.io/v1beta1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">L2Advertisement</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">ip-pool-advertisement</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">metallb-system</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">ipAddressPools</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">lb-ip-pool</span>
+</span></span></code></pre></div><p>then apply both files to the cluster:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl apply -n metallb -f ippool.yaml
+</span></span><span style="display:flex;"><span>kubectl apply -n metallb -f advertisement-l2.yaml
+</span></span></code></pre></div><blockquote>
+<p><strong>Note:</strong> This is the quick and dirty way to do this. I reccommend checking out my repo linked at the start of this article to see how subchartting can be used for maintaining the configuration of third-party charts.</p>
+</blockquote>
+<h4 id="validate-with-loadbalancer">Validate with LoadBalancer<a hidden class="anchor" aria-hidden="true" href="#validate-with-loadbalancer">#</a></h4>
+<p>If you don&rsquo;t have any applications deployed and want to validate that the metallb installation is working you can apply the following LoadBalancer Service to your cluster and verify that an IP from your <code>IPPool</code> is attached to the service as an <code>external-ip</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#75715e">### lb-svc.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Service</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">my-service</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">namespace</span>: <span style="color:#ae81ff">default</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">selector</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">app</span>: <span style="color:#ae81ff">my-app</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">ports</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">protocol</span>: <span style="color:#ae81ff">TCP</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">port</span>: <span style="color:#ae81ff">80</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">targetPort</span>: <span style="color:#ae81ff">8080</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">LoadBalancer</span>
+</span></span></code></pre></div><p>and apply with <code>kubectl apply -f lb-svc.yaml</code>. Then use <code>kubectl get svc</code> to verify that an external-ip has been assigned to the service named &ldquo;my-service&rdquo;.</p>
+<h2 id="deploying-nginx-ingress">Deploying Nginx-Ingress<a hidden class="anchor" aria-hidden="true" href="#deploying-nginx-ingress">#</a></h2>
+<p>Now that we can provision IPs for an implementation of LoadBalancer-type services we can move on to our installation of Nginx Ingress. Yes, technically, NodePort could have been used instead of setting up MetalLB but this is about learning new things! The Nginx Ingress controller will act as a single point of entry for all traffic to workloads running in my cluster. Nginx Ingress supports host and path-based routing and I will make use of this when setting DNS records for my apps later on. A large benefit of using Nginx Ingress as a single point of entry for all incoming traffic is that I can integrate Nginx Ingress with Cert-Manager so that it is also the single point for managing all TLS termination of incoming traffic. This reduces the management overhead for me.</p>
+<p>As with MetalLB, my configuration of the Nginx Ingress controller chart can be found in my charts repo linked at the top of this post. There is a lot less configuration to do for this deployment. I will provide a quick and dirty installation here as well though. All that you need to configure via the values file is the service resource that will act as the load balancer to the ingress controller.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#75715e">### nginx-ingress-values.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">controller</span>:
+</span></span><span style="display:flex;"><span><span style="color:#f92672">service</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">enabled</span>: <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">type</span>: <span style="color:#e6db74">&#34;LoadBalancer&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">annotations</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">metallb.universe.tf/address-pool</span>: <span style="color:#ae81ff">lb-ip-pool</span> <span style="color:#75715e"># Add the annotation so that metallb will use the previously configured ippool</span>
+</span></span></code></pre></div><p>and then install:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+</span></span><span style="display:flex;"><span>helm repo update
+</span></span><span style="display:flex;"><span>helm install -n nginx-ingress nginx-ingress ingress-nginx/ingress-nginx -f nginx-ingress-values.yaml --create-namespace
+</span></span></code></pre></div><p>Hura-ah! The Nginx Ingress controller should now be installed. It will watch of the creation <code>ingress</code> resources in the cluster. <code>ingress</code> resources are typically deployed with your application and configure how the Nginx Ingress Controller should route traffic to that application.</p>
+<h2 id="configuring-cert-manager">Configuring Cert-Manager<a hidden class="anchor" aria-hidden="true" href="#configuring-cert-manager">#</a></h2>
+<p>As of right now, with MetalLB and the Nginx Ingress controller set up, I would be ready to access my applications. The problem is, any web browser will give me a page saying that the page I am trying to access is insecure and I would have to click through to access my applications. This is an annoyance and so I have set up Cert-Manager to solve this problem.</p>
+<p>Cert-Manager is a tool that can be integrated with Nginx Ingress to automatically provision and rotate SSL/TLS certs for your domains. The SSL/TLS certs are used to encrypt the HTTP traffic between your servers and clients. This is what gives us HTTPs.</p>
+<p>An important thing to know before setting up Cert-Manager is that SSL/TLS certificates can <em>only be issued for domains that you own</em>. When Cert-Manager attempts to provision or rotate a cert for your service it must pass one of two tests known as ACME challenges (<code>DNS-01</code> or <code>HTTP-01</code>) to verify that you are the owner of the domain for which you are provisioning a certificate.</p>
+<h4 id="installing-cert-manager">Installing Cert-Manager<a hidden class="anchor" aria-hidden="true" href="#installing-cert-manager">#</a></h4>
+<p>Cert-Manager, like MetalLB, has a set of CRDs that are needed for configuring the installation. This means that I had to do the initial Helm install to get the CRDs and then a subsequent Helm upgrade to add configurations. There is one additional CRD needed when setting up Cert-Manager. The required CRD, for my use case and setup at least, is the <code>ClusterIssuer</code>. The <code>ClusterIssuer</code> configures which Certificate Authority (CA) Cert-Manager will use to generate the SSL/TLS certificates. In my installation, I have used Let&rsquo;s Encrypt as my CA. Let&rsquo;s Encrypt provides free certificates and has a generous quota on their production service.</p>
+<p>The initial Cert-Manager installation can be added as follows:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>helm repo add jetstack https://charts.jetstack.io --force-update
+</span></span><span style="display:flex;"><span>helm install cert-manager -n cert-manager --version v1.15.1 jetstack/cert-manager --set installCRDs<span style="color:#f92672">=</span>true --create-namespace
+</span></span></code></pre></div><p>After the initial installation, I deployed the <code>ClusterIssuer</code>. As I mentioned earlier, certificates can only be issued for domains that you own. This means that the
+CA you choose will attempt to execute a <code>DNS-01</code> or <code>HTTP-01</code> challenge successfully before provisioning your cert. <code>DNS-01</code> is more secure so I cover that here. With <code>DNS-01</code>
+you must configure your <code>ClusterIssuer</code> with an API key for the registrar where you manage your domain. In my case, this is Cloudflare. The <code>DNS-01</code> challenge works by the CA requesting that you configure a <code>TXT</code> record on your domain with specific values that the CA provides under the subdomain <code>_acme-challenge.&lt;YOUR_DOMAIN&gt;</code>. If the CA validates that this has been done, then your ownership of the domain is verified and the certificate is issued. Using my provided API key, Cert-Manager will do this all on my behalf.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#75715e">## cluster-issuer.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">cert-manager.io/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">ClusterIssuer</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">letsencrypt</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">acme</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># You must replace this email address with your own.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Let&#39;s Encrypt will use this to contact you about expiring</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># certificates, and issues related to your account.</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">email</span>: <span style="color:#ae81ff">&lt;your email&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">server</span>: <span style="color:#ae81ff">https://acme-v02.api.letsencrypt.org/directory</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">privateKeySecretRef</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#75715e"># Secret resource that will be used to store the account&#39;s private key.</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">name</span>: <span style="color:#ae81ff">&lt;arbitrary secret name where your acme account key will be stored once generated&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Add a single challenge solver</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">solvers</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#f92672">dns01</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">cloudflare</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">apiTokenSecretRef</span>:
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">name</span>: <span style="color:#ae81ff">registrar-api-key</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">key</span>: <span style="color:#ae81ff">api-token</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#75715e">## secret.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">Secret</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">registrar-api-key</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">type</span>: <span style="color:#ae81ff">Opaque</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">stringData</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">api-token</span>: {{ <span style="color:#ae81ff">.Values.cloudflareApiToken }}</span>
+</span></span></code></pre></div><blockquote>
+<p><strong>Note:</strong> If you are setting this up for the first time it is recommended to use the Let&rsquo;s Encrypt staging servers to not waste your quota on the production servers. The staging server can be gotten by replacing <code>acme-v02</code> with <code>acme-staging-v02</code> in the <code>server</code> configuration.</p>
+</blockquote>
+<p>With Cert-Manager and a <code>ClusterIssuer</code> installed, I was now able to create new <code>ingress</code> resources containing routing rules and integrated with Cert-Manager via annotations for the automatic provisioning of SSL/TLS certs. Using the API token for Cloudflare, Cert-Manager completes the <code>DNS-01</code> ACME challenge on my behalf.</p>
+<h2 id="local-dns-management-with-pi-hole">Local DNS Management with Pi-Hole<a hidden class="anchor" aria-hidden="true" href="#local-dns-management-with-pi-hole">#</a></h2>
+<p>One more small detail about my cluster pertains to DNS records. I did not want all the DNS records for my services available on the public internet. Although the services running on my local network would be unreachable to anyone on the public internet, storing the DNS records with the private IPs for my hosted services in Cloudflare or any other public DNS provider would have meant that anyone could discover the private IPs at which I host services. For me, this was not ideal. This was the motivation for setting up Pi-Hole as a DNS server on my home network. Pi-Hole will act like an Azure Private DNS Zone or Private Hosted Zones in  AWS Route53.</p>
+<p>The first step to achieving this goal was installing Pi-Hole on one of my Pis. I chose to do the installation on <code>stoneward</code> (refer to the network diagram for the naming of my nodes). This is the same Pi that runs TailScale and does not serve any role in the K3s cluster. After completing the Pi-Hole installation I was able to navigate to <strong>Local DNS &gt; DNS Records</strong> in the Pi-Hole admin web UI and configure DNS records for reaching the nginx-ingress controller and other common IPs such as the cluster node IPs.</p>
+<blockquote>
+<p>Note: I had to adjust the DNS server&rsquo;s <strong>Interface Settings</strong> in the Pi-Hole admin web UI. By default, only local requests from devices one hop away are allowed which does not work with my Tailnat. Since my DNS server is only accessible on my private home network I changed this setting to permit all origins for DNS queries.</p>
+</blockquote>
+<p>The second and final step for setting up the private DNS requires configuring TailScale. The TailScale admin portal allows you to configure the DNS nameserver to use for anyone connecting to your Tailnet. This must be updated with the IP of <code>stoneward</code> and the override local DNS setting set to true. When this is configured. All DNS requests for users connected to your Tailnet will be routed via the Subnet Router&rsquo;s advertised CIDR range to the DNS running at home. This will allow only users connected to my local network to resolve the DNS records for services running in my homelab.</p>
+<h1 id="persistent-storage">Persistent Storage<a hidden class="anchor" aria-hidden="true" href="#persistent-storage">#</a></h1>
+<p>The final part of my cluster configuration that I will cover in this post is my implementation of persistent storage. I wanted to be able to have a reliable persistent storage solution as I intend to store data that matters to me on my services. However, I also wanted a solution that required a small amount of effort and minimal cost. This ruled out using Kubernetes <code>hostPath</code> since the micro SD cards that act as my primary storage on the RPis in not very reliable. The <code>hostPath</code> solution also has the issue that data would be tied to a specific node meaning that pods could not be scheduled interchangeably on any node. Exploring a distributed file storage solution such as Rook Ceph or Longhorn was interesting to me but not something I really had the bandwidth to explore and seemed overkill for my use case.</p>
+<p>In order to de-couple my storage solution from the nodes I chose to set up a 1TB SSD as an SMB share that could be mounted by any node in the cluster via the <a href="https://github.com/kubernetes-csi/csi-driver-smb">SBM CSI driver</a>. The SMB CSI driver is a Kubernetes CSI implementation that enables pods to access an SMB share via Persistent Volumes and Persistent Volume Claims.</p>
+<h3 id="creating-the-smb-share">Creating the SMB share<a hidden class="anchor" aria-hidden="true" href="#creating-the-smb-share">#</a></h3>
+<p>When I set up my cluster, I only had one node that had a significant amount of RAM. This was my k3s master node, <code>bondsmith</code>, which had 8Gb of memory. As a result, I decided to expose the 1TB SSD from this node</p>
+<p>I connected my 1 TB SSD to the Pi through a SATA to USB converter cable. The cluster case I used also had a convenient place to mount the drive on the same ejectable rack that the Pi was connected to. After powering on the PI with the PoE connection I connected the Tb drive and configured the SMB share.</p>
+<p>The first part of setting up the SMB share was installing Samba to the <code>bondsmith</code> node. After installation I mounted the TB drive to the <code>/nas</code> dir at the root of my machine. Using the <code>lsblk</code> command I was able to find my drive on the system and then use the <code>mount</code> command to mount the drive to the <code>/nas</code> dir.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e">## Mount the drive</span>
+</span></span><span style="display:flex;"><span>sudo mount /dev/sda2 /nas
+</span></span></code></pre></div><blockquote>
+<p>Note: It&rsquo;s a good idea to create a new user and group for access to the SMB share on the system. I created a user and group for SMB users and changed the access permissions and ownership of the mounted drive to that user</p>
+</blockquote>
+<p>Once the drive is mounted you can configure Samba to share the drive to the network. This can be done by configuring and <code>smb.conf</code> file and restarting the smb service.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-toml" data-lang="toml"><span style="display:flex;"><span><span style="color:#75715e">## /etc/samba/smb.conf</span>
+</span></span><span style="display:flex;"><span>[<span style="color:#a6e22e">nas</span>]
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">path</span>=<span style="color:#960050;background-color:#1e0010">/</span><span style="color:#a6e22e">nas</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">writeable</span>=<span style="color:#a6e22e">Yes</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">create</span> <span style="color:#a6e22e">mask</span>=<span style="color:#ae81ff">0777</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">directory</span> <span style="color:#a6e22e">mask</span>=<span style="color:#ae81ff">0777</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">public</span>=<span style="color:#a6e22e">no</span>
+</span></span></code></pre></div><p>The last step is adding the newly created smb user to Samba using <code>smbpasswd</code>.</p>
+<h3 id="setting-up-the-smb-csi-driver">Setting up the SMB CSI Driver<a hidden class="anchor" aria-hidden="true" href="#setting-up-the-smb-csi-driver">#</a></h3>
+<p>The SMB CSI driver was easily installed into the cluster via the Helm chart. In order to enable the use of PVCs/PVs it was necessary to configure a StorageClass resource along with the Helm chart. The storage class specifies the connection details for mounting the SMB share. The storage class is then used in PVCs to automatically connect to the network drive and access data.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#75715e">## storageclass.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">storage.k8s.io/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">StorageClass</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">smb</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">provisioner</span>: <span style="color:#ae81ff">smb.csi.k8s.io</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">parameters</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">source</span>: <span style="color:#ae81ff">//&lt;ip of the node&gt;/&lt;path to the smb share&gt;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># if csi.storage.k8s.io/provisioner-secret is provided, will create a sub directory</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># with PV name under source</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">csi.storage.k8s.io/provisioner-secret-name</span>: <span style="color:#ae81ff">smbcreds </span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">csi.storage.k8s.io/provisioner-secret-namespace</span>: <span style="color:#ae81ff">default</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">csi.storage.k8s.io/node-stage-secret-name</span>: <span style="color:#ae81ff">smbcreds</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">csi.storage.k8s.io/node-stage-secret-namespace</span>: <span style="color:#ae81ff">default</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">reclaimPolicy: Delete  # available values</span>: <span style="color:#ae81ff">Delete, Retain</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">volumeBindingMode</span>: <span style="color:#ae81ff">Immediate</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">mountOptions</span>:
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">dir_mode=0777</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">file_mode=0777</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">uid=1001</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">gid=1001</span>
+</span></span><span style="display:flex;"><span>  - <span style="color:#ae81ff">nobrl </span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># details on using nobrl:</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">## https://learn.microsoft.com/en-us/troubleshoot/azure/azure-kubernetes/storage/mountoptions-settings-azure-files#other-useful-settings</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">## https://github.com/dani-garcia/vaultwarden/issues/846</span>
+</span></span></code></pre></div><p>You will also need to create a secret containing the username and password for connecting to the SMB drive:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>kubectl create secret generic smbcreds --from-literal username<span style="color:#f92672">=</span>&lt;USERNAME&gt; --from-literal password<span style="color:#f92672">=</span>&lt;PASSWORD&gt;
+</span></span></code></pre></div><h3 id="testing-pvcpv-creation">Testing PVC/PV Creation<a hidden class="anchor" aria-hidden="true" href="#testing-pvcpv-creation">#</a></h3>
+<p>After the above is installed and set up, I was able to validate that storage was provisioned when specifying the persistent volume claim.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">apiVersion</span>: <span style="color:#ae81ff">apps/v1</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">kind</span>: <span style="color:#ae81ff">StatefulSet</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">ss-smb</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">app</span>: <span style="color:#ae81ff">busybox</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">replicas</span>: <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">template</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">labels</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">app</span>: <span style="color:#ae81ff">busybox</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">containers</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">ss-smb</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">image</span>: <span style="color:#ae81ff">alpine:latest</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">command</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#ae81ff">sleep</span>
+</span></span><span style="display:flex;"><span>            - <span style="color:#ae81ff">infinity</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">volumeMounts</span>:
+</span></span><span style="display:flex;"><span>            - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">smb</span>
+</span></span><span style="display:flex;"><span>              <span style="color:#f92672">mountPath</span>: <span style="color:#e6db74">&#34;/sc/smb&#34;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">tolerations</span>:
+</span></span><span style="display:flex;"><span>        - <span style="color:#f92672">key</span>: <span style="color:#e6db74">&#34;node.kubernetes.io/os&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">operator</span>: <span style="color:#e6db74">&#34;Exists&#34;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">effect</span>: <span style="color:#e6db74">&#34;NoSchedule&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">updateStrategy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">RollingUpdate</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">selector</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">matchLabels</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">app</span>: <span style="color:#ae81ff">busybox</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">volumeClaimTemplates</span>:
+</span></span><span style="display:flex;"><span>    - <span style="color:#f92672">metadata</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">name</span>: <span style="color:#ae81ff">smb</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">annotations</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">volume.beta.kubernetes.io/storage-class</span>: <span style="color:#ae81ff">smb</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">spec</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">accessModes</span>: [<span style="color:#e6db74">&#34;ReadWriteMany&#34;</span>]
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">resources</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">requests</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">storage</span>: <span style="color:#ae81ff">10Gi</span>
+</span></span></code></pre></div><h1 id="backups-with-rclone-and-backblaze">Backups with rclone and Backblaze<a hidden class="anchor" aria-hidden="true" href="#backups-with-rclone-and-backblaze">#</a></h1>
+<p>I wanted to make sure that I keep backups of all my data somewhere cheap in case I need to do some disaster recovery. I chose to use Backblaze since it has an S3 compatible API and is cheap. There are many guides for authenticating to Backblaze with rclone and k3s so I will just add the commands here in case I need to reference them in the future.</p>
+<blockquote>
+<p>Note: I did not use an in-cluster back-up tool like Velero and Rustic because they require snapshot capabilities from the CSI driver and the SMB CSI driver does not support this.</p>
+</blockquote>
+<h3 id="backing-up-the-smb-drive">Backing up the SMB drive<a hidden class="anchor" aria-hidden="true" href="#backing-up-the-smb-drive">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>rclone sync -P /nas/ b2:&lt;bucket name&gt;
+</span></span></code></pre></div><h3 id="backing-up-etcd">Backing up etcd<a hidden class="anchor" aria-hidden="true" href="#backing-up-etcd">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>k3s etcd-snapshot save --s3 --s3-endpoint &lt;backblaze endpoint&gt; --s3-bucket &lt;backblaze bucket&gt; --s3-access-key &lt;bb access key&gt; --s3-secret-key &lt;bb secret key&gt;
+</span></span></code></pre></div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/kubernetes/">Kubernetes</a></li>
+      <li><a href="http://localhost:1313/tags/raspberry-pi/">Raspberry Pi</a></li>
+      <li><a href="http://localhost:1313/tags/k3s/">K3s</a></li>
+      <li><a href="http://localhost:1313/tags/clusters/">Clusters</a></li>
+      <li><a href="http://localhost:1313/tags/homelab/">Homelab</a></li>
+      <li><a href="http://localhost:1313/tags/ansible/">Ansible</a></li>
+      <li><a href="http://localhost:1313/tags/tailscale/">Tailscale</a></li>
+      <li><a href="http://localhost:1313/tags/networking/">Networking</a></li>
+      <li><a href="http://localhost:1313/tags/pi-hole/">Pi-Hole</a></li>
+      <li><a href="http://localhost:1313/tags/cloud/">Cloud</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="http://localhost:1313/posts/03-locust-load-testing/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Load Testing Applications with Locust</span>
+  </a>
+  <a class="next" href="http://localhost:1313/posts/02-bare-metal-k3s-on-rpi-part-1/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Part 1: Building a Bare-metal Kubernetes Cluster on Raspberry Pis</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2024 <a href="http://localhost:1313/">Ben Mask</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

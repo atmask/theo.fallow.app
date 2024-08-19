@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Ben Mask</title>
+    <link>http://localhost:1313/</link>
+    <description>Recent content on Ben Mask</description>
+    <generator>Hugo -- 0.128.2</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 10 Aug 2024 19:57:08 -0400</lastBuildDate>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Intro to K8s Autoscaling</title>
+      <link>http://localhost:1313/posts/05-intro-to-k8s-autoscaling/</link>
+      <pubDate>Sat, 10 Aug 2024 19:57:08 -0400</pubDate>
+      <guid>http://localhost:1313/posts/05-intro-to-k8s-autoscaling/</guid>
+      <description>Big Idea Autoscaling is a key technology that builds on the elasticity of distributed cloud computing. To understand autoscaling in the Kubernetes environment, it will be important to understand the basic enabling technologies: containerization and distributed computing. By leveraging hese two technologies, Kubernetes supports horizontal pod autoscaling (hpa) and cluster autoscaling. In this post I will dive into some brief background on Containerization and distributed computing (just enough to be dangerous) and then take a more focused look at the horizontal autoscaling functionality of Kubernetes.</description>
+    </item>
+    <item>
+      <title>Understanding CIDR Blocks and IPv4 Addressing</title>
+      <link>http://localhost:1313/posts/04-understanding-ipv4-addressing/</link>
+      <pubDate>Fri, 09 Aug 2024 20:01:16 -0400</pubDate>
+      <guid>http://localhost:1313/posts/04-understanding-ipv4-addressing/</guid>
+      <description>Big Idea The goal of this post will be to give an overview of IPv4 addresses. My aim is to do this incrementally by first covering the anatomy of an IPv4 address in its base 10 and binary representations. Second, I will look at CIDR block subnetting and subnet masks. Thirdly, I will append some helpful formulas for working with IP addresses.
+Background &amp;amp; History Before diving into the anatomy of IPv4 let&amp;rsquo;s turn back the page.</description>
+    </item>
+    <item>
+      <title>Load Testing Applications with Locust</title>
+      <link>http://localhost:1313/posts/03-locust-load-testing/</link>
+      <pubDate>Mon, 22 Jul 2024 21:22:31 -0400</pubDate>
+      <guid>http://localhost:1313/posts/03-locust-load-testing/</guid>
+      <description>Big Idea I was recently tasked with configuring automated load tests to validate the health of a service under load and to identify bottlenecks and limits at which the service became overloaded. Up until this point, I had not worked first-hand with any load-testing frameworks. Although there are many great load testing tools out there like JMeter, K6s, and Locust, I decided to get started with Locust as it is a framework I had heard of before and is a pure Python framework (Python is the language I think in right now).</description>
+    </item>
+    <item>
+      <title>Part 2: Building a Bare-metal Kubernetes Cluster on Raspberry Pis</title>
+      <link>http://localhost:1313/posts/02-bare-metal-k3s-on-rpi-part-2/</link>
+      <pubDate>Sun, 21 Jul 2024 20:30:55 -0400</pubDate>
+      <guid>http://localhost:1313/posts/02-bare-metal-k3s-on-rpi-part-2/</guid>
+      <description>Big Idea In part 1 of this post, I covered the basics of getting started building my Kubernetes cluster on Raspberry Pis. In particular, I laid out my goals and requirements, the build list, the network topology and setup, and the installation of K3s on each of the nodes. I recommend going back and checking out that post first if you haven&amp;rsquo;t already (Part 1: Building a Bare-metal Kubernetes Cluster on Raspberry Pis).</description>
+    </item>
+    <item>
+      <title>Part 1: Building a Bare-metal Kubernetes Cluster on Raspberry Pis</title>
+      <link>http://localhost:1313/posts/02-bare-metal-k3s-on-rpi-part-1/</link>
+      <pubDate>Wed, 10 Jul 2024 20:29:01 -0400</pubDate>
+      <guid>http://localhost:1313/posts/02-bare-metal-k3s-on-rpi-part-1/</guid>
+      <description>Big Idea From the start of my career, I have been fascinated by Kubernetes. I love distributed systems and the rich history of how we have arrived where we are today with distributed computing. We live in the ongoing evolution of our communal vision for cloud computing. In the early years, the vision was to present a homogenous Unix-like interface for managing an underlying collection of servers such as BOINC. Now, we live in the world of many small virtualized unix environments distributed across servers and sharing compute.</description>
+    </item>
+    <item>
+      <title>Getting Started with Hugo &amp; GitHub Pages</title>
+      <link>http://localhost:1313/posts/01-getting-started-w-hugo/</link>
+      <pubDate>Fri, 05 Jul 2024 17:54:14 -0400</pubDate>
+      <guid>http://localhost:1313/posts/01-getting-started-w-hugo/</guid>
+      <description>Big Idea The goal of this post is to capture the steps required to get started with Hugo and GitHub Pages. Hugo is a Go-based static site generation tool. GitHub Pages is a feature of GitHub that allows anyone with a GitHub account to host a static site.
+Part 1: Setting up GitHub Pages In order to serve your site, you will need somewhere to host it. GitHub offers a free service called GitHub Pages that we will use for this purpose.</description>
+    </item>
+  </channel>
+</rss>
