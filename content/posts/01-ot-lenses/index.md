@@ -6,6 +6,72 @@ date: '2024-07-05T17:54:14-04:00'
 draft: false
 ---
 
-# Big Idea
+# Introduction
 
-The goal of this post is to capture the steps required to get started with Hugo and GitHub Pages. Hugo is a Go-based static site generation tool. GitHub Pages is a feature of GitHub that allows anyone with a GitHub account to host a static site.
+
+# Why Do We Care?
+Because we love the scriptures.
+
+# Unpacking What We believe
+
+Before going further, I want to recognize why I've seen people react as they do to interpretations of the OT that challenge literal and flat readings of the text. Reading's that try to acquit and attribute horrors done in the name of God to God. Often when friends get concerned it's not because they want to defend their way of reading the text. They get concerned because they've grown up being taught and led to believe that that the only way to uphold the bible as being God-breathed and having authority by upholding a literal reading of the text. When this method of engaging with the scriptures is questioned then what they truly want to defend also feels threatned. They are often not equipped with the tools and to change their perspective and to compound it all, the search for new perspective flowing out of a desire to understnad the scriptures, the willingness to be uncertain enough about what has been handed down to you that you would consider putting it into the furnace and against the anvil is considered a show of doubt and instability in faith.
+
+Many of us in the west have been handed down a chirstian tradition that has tried to answer so many questions according to a deeply embedded assumption. We no longer even see these assumptions because we now take them for granted and we are distracted trying to answer questions accroding to these assumptions. The common underlying assumption in the west is that the Bible mediates truth through a literal recounting of facts. And these facts instruct us, about how to live, how to be moral, and the character of God. In our mind, the only fitting view for the scriptures as a religious text is as a didactic moral text. We have tried to push this view so far that we attempt to harmonize the mult-vocal biblica narritives into one contradiciton-less uniform voice. We have pushed so far as to adopt a doctrine of perspicuity which claims that the bible is clear and understandable. Do we not see an irony that GotQuestions, an website entirely devoted to trying to answer questions about the bible from a reformed point of view also holds this beleif. 
+
+
+# Invitations to Doubt
+
+If we can recognize that then let's also recognize the following. That is is a deeply rooted faith in the goodness of our heavenly father that allows us to challenge anything that we think is not befitting the goodness we believe about him. That we do not defend the truth; the truth defends us. The bible is not true because it is authoritative; it is authoritative because it true.
+
+
+
+Now, some may remain skeptical. You can hear the fundamentalist whisper from the wings "Marcionite Heresy". For thos who aren't familiar with the MArcionite heresy here is the background. Marcion was an ealry member of the church who wrestled with the old testament stories of violence, sotries of divine violence, divine commanded violence, dinvely sanctioned violence. Facing this issue, Marcion asserted that the god of the old testametn was a different god than we see in the new testament. A different being then the god we know revealed in the person of Christ. 
+
+The early church declared this a heresy. The creeds we carry today assert along with the scriptures that there is one God and Father of all, maker of heaven and earth. But here's the thing. The early church addressed a metaphysical approach to understanding old testament violence. It is true that the Jewish Scriptures which we know as the old testament tell the unracveling story of a people's relationship with God and as Christian we beleive this culminates in the person of Christ, God With Us. We do not beleive as Marcion did that the Gold of the old testament is different than that ofthe new testament. However, that doesn't mean we don't still wrestle with violent depcitions of God in the hebrew sciptures. What it does is shift the way we wrestle with these tests away from a metaphysical issue to a hermneutical issue. This invitation isn't an invitation to throw out the jewish scriptures. It's an invitation to challenge the way we understand the ways in which they communicate truth, how it's autohrity is mediated into our lives, and what the diving human partnership of God's own Spirit at work in humans (in-spiriting) means. (richard beck)
+
+
+The thing is this. Marcionism is a metaphysical 
+
+
+
+# What is truth?
+-truth authorit and inpsiration
+
+
+# God is Breathing and So Are you
+
+Inspration is about delegation and partnership
+
+
+# The word and the the Word
+
+- The transfiguration
+- the image of God
+- The scriptures which lead to christr
+
+# The Scriptures through Ancient Eyes
+
+The scriptures make us wise for salvation through Christ. 
+
+The Emmaus road
+The upper room
+    - Jesus had a bilbe study. And through him. Through the breaking of the bread they understand. 
+    - and he taught them
+
+
+
+
+
+
+Things that need to be said:
+
+- what are we protecting and what is at stake. How do we reframe those so that we can see differently
+- The transfigurations
+- A Christ-shaped lens
+- The scriptures do not containe eternal life but are veiled until in Christ they are taken away
+
+
+
+
+
+
