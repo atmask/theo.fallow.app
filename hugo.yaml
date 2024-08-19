@@ -1,6 +1,6 @@
 baseURL: https://blog.fallow.app/
 languageCode: en-us
-title: Ben Mask
+title: theo.fallow.app
 theme:
   - PaperMod
 menus:
@@ -30,15 +30,9 @@ params:
     favicon32x32: "/favicon-32x32.png"
   homeInfoParams:
     title: Hi there!
-    # subtitle: Software Engineer/DevOps/Cloud Developer
-    Content: "My name's Ben. Welcome to my blog. I'm a software engineer with a passion for understanding systems, interactions, abstractions, and architecture. I'm always looking for new opportunities to learn and grow. Feel free to reach out if you're interested in any of my work and want to chat!"
-  socialIcons: # optional
-    - name: Github
-      url: https://github.com/atmask
-    - name: LinkedIn
-      url: https://www.linkedin.com/in/ben-mask-936b49185/
-    - name: email
-      url: mailto:benjaminajm@gmail.com
+    Content: >
+      My name's Ben". This is my scratch pad for theology. To write about what I'm reading, thinking, and learning to communicate 
+      about the heart of God and being a person in this complicated world."
   ShowCodeCopyButtons: true
   ShowBreadCrumbs: true
   ShowReadingTime: true
