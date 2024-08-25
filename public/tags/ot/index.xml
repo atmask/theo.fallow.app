@@ -2,19 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>OT on Apokatastasis</title>
-    <link>http://localhost:60038/tags/ot/</link>
+    <link>http://localhost:1313/tags/ot/</link>
     <description>Recent content in OT on Apokatastasis</description>
     <generator>Hugo -- 0.128.2</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 05 Jul 2024 17:54:14 -0400</lastBuildDate>
-    <atom:link href="http://localhost:60038/tags/ot/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:1313/tags/ot/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>A Pair of Lenses for the Old Testament</title>
-      <link>http://localhost:60038/posts/01-ot-lenses/</link>
+      <title>God is Breathing and So Are You</title>
+      <link>http://localhost:1313/posts/01-ot-lenses/</link>
       <pubDate>Fri, 05 Jul 2024 17:54:14 -0400</pubDate>
-      <guid>http://localhost:60038/posts/01-ot-lenses/</guid>
-      <description>Introduction Why Do We Care? Because we love the scriptures.
-Unpacking What We believe Before going further, I want to recognize why I&amp;rsquo;ve seen people react as they do to interpretations of the OT that challenge literal and flat readings of the text. Reading&amp;rsquo;s that try to acquit and attribute horrors done in the name of God to God. Often when friends get concerned it&amp;rsquo;s not because they want to defend their way of reading the text.</description>
+      <guid>http://localhost:1313/posts/01-ot-lenses/</guid>
+      <description>The Word of God is inspired, inerrant, and infalliable. And when he was about eighteen years old, he grew a beard.
+— Brad Jersak1
+Research &amp;lsquo;When we come to to the bible expecting it to be an instructional manual intended by God to give us unwavering, cement hard certainty about our faith, we are actually creating problems for ourselves, beacues - as we I&amp;rsquo;ve come to see - the Bible wasn&amp;rsquo;t designed to meet that expectation.</description>
     </item>
   </channel>
 </rss>

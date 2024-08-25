@@ -2,31 +2,52 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Tags on Apokatastasis</title>
-    <link>http://localhost:60038/tags/</link>
+    <link>http://localhost:1313/tags/</link>
     <description>Recent content in Tags on Apokatastasis</description>
     <generator>Hugo -- 0.128.2</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 05 Jul 2024 17:54:14 -0400</lastBuildDate>
-    <atom:link href="http://localhost:60038/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 23 Aug 2024 15:27:01 -0400</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Bible Project</title>
+      <link>http://localhost:1313/tags/bible-project/</link>
+      <pubDate>Fri, 23 Aug 2024 15:27:01 -0400</pubDate>
+      <guid>http://localhost:1313/tags/bible-project/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Hebrew Bible</title>
+      <link>http://localhost:1313/tags/hebrew-bible/</link>
+      <pubDate>Fri, 23 Aug 2024 15:27:01 -0400</pubDate>
+      <guid>http://localhost:1313/tags/hebrew-bible/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Hermenutics</title>
-      <link>http://localhost:60038/tags/hermenutics/</link>
-      <pubDate>Fri, 05 Jul 2024 17:54:14 -0400</pubDate>
-      <guid>http://localhost:60038/tags/hermenutics/</guid>
+      <link>http://localhost:1313/tags/hermenutics/</link>
+      <pubDate>Fri, 23 Aug 2024 15:27:01 -0400</pubDate>
+      <guid>http://localhost:1313/tags/hermenutics/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Inspiration</title>
+      <link>http://localhost:1313/tags/inspiration/</link>
+      <pubDate>Fri, 23 Aug 2024 15:27:01 -0400</pubDate>
+      <guid>http://localhost:1313/tags/inspiration/</guid>
       <description></description>
     </item>
     <item>
       <title>OT</title>
-      <link>http://localhost:60038/tags/ot/</link>
+      <link>http://localhost:1313/tags/ot/</link>
       <pubDate>Fri, 05 Jul 2024 17:54:14 -0400</pubDate>
-      <guid>http://localhost:60038/tags/ot/</guid>
+      <guid>http://localhost:1313/tags/ot/</guid>
       <description></description>
     </item>
     <item>
       <title>Violence</title>
-      <link>http://localhost:60038/tags/violence/</link>
+      <link>http://localhost:1313/tags/violence/</link>
       <pubDate>Fri, 05 Jul 2024 17:54:14 -0400</pubDate>
-      <guid>http://localhost:60038/tags/violence/</guid>
+      <guid>http://localhost:1313/tags/violence/</guid>
       <description></description>
     </item>
   </channel>

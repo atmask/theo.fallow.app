@@ -8,6 +8,9 @@ menus:
     - name: Posts
       url: posts/
       weight: 10
+    - name: Notes
+      url: notes/
+      weight: 15
     - name: Tags
       url: tags/
       weight: 20
@@ -37,3 +40,4 @@ params:
   ShowBreadCrumbs: true
   ShowReadingTime: true
   ShowPostNavLinks: true
+  mainSections: ["posts", "notes"]
