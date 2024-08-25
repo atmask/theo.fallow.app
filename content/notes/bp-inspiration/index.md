@@ -3,7 +3,7 @@ title: '✏️ An Important Premise: The Inspiration of Scripture'
 tags: ["hermenutics", "inspiration", "bible project", "hebrew bible"]
 ShowToc: true
 hiddenInHomeList: true
-date: '2024-08-25T15:27:01-04:00'
+date: '2024-08-24T15:27:01-04:00'
 draft: false
 ---
 # Material
