@@ -14,14 +14,14 @@ draft: false
 
 ## Origins of the Premise
 
-A very common attribution to the Scriptures that the church holds to is the premise of inspiration. Inspiration is *a claim about the nature of the biblical texts*. The meaning of this claim has had ongoing life in the history of the church and different traditions in different contexts and times have had varying understanings of what this means. It's important to recognize that any understanding about the nature of the scriptures, especially as it pertains to their being "God-breathed", is going to shape our expectation of what these texts are, how they communicate, their purpose, and their role in our lives. All to often the meaning of the claim that scripture is God-breathed is assumed without thoughtful reflection on the origins of the phrase. This can give us presumed expectations about the scriptures that create more problems than they help us navigate. 
+A very common attribution to the Scriptures that the church holds to is the premise of inspiration. Inspiration is *a claim about the nature of the biblical texts*. The meaning of this claim has had ongoing life in the history of the church and different traditions in different contexts and times have had varying understanings of what this means. It's important to recognize that any understanding about the nature of the scriptures, especially as it pertains to their being "God-breathed", is going to shape our expectation of what these texts are, how they communicate, their purpose, and their role in our lives. All to often the meaning of the claim that scripture is God-breathed is assumed without thoughtful reflection on the origins of the phrase. This can lead us to presumed expectations about the scriptures that create more problems than they help us navigate. 
 
 The premise of scripture as God-breathed emerges from 2 Timothy 3:16:
 
 > But you must continue in the things which you have learned and been assured of, knowing from whom you have learned them, and that from childhood you have known the Holy Scriptures, which are able to make you wise for salvation through faith which is in Christ Jesus. All Scripture is given by inspiration of God (theopneustos), and is profitable for doctrine, for reproof, for correction, for instruction in righteousness, that the man of God may be complete, thoroughly equipped for every good work.
 > 2 Tim. 3:16 (NKJV)
 
-Theopneustos is Paul's word that acts as a *type of meta-reflection on the nature of the scriptures*. The underlying word is compound word that translates to the "breath of God". Theopneustos is only used once in the entirety of the new testament in this passage by Paul. For Paul, theopneustos is form of *theological shorthand that is packed with meaning and backstory*. If we want to engage with an understanding of what Paul means by this word it's important that we engage with his understanding God's divine breath at work in the world.
+*Theopneustos* is Paul's word that acts as a *type of meta-reflection on the nature of the scriptures*. The underlying word is compound word that translates to the "breath of God". *Theopneustos* is only used once in the entirety of the new testament in this passage by Paul. For Paul, theopneustos is form of *theological shorthand that is packed with meaning and backstory*. If we want to engage with an understanding of what Paul means by this word it's important that we engage with his understanding God's divine breath at work in the world.
 
 ## Models of Inspirations
 
@@ -31,26 +31,26 @@ As we mentioned at the outset, there are and have been different models for unde
 
 To one extreme there is a common view, which hopefully not framed too pejoartively, can be called the Golden Tablets from Heaven View. And this view assumes, that *in order for the scriptures to speak a divine word (i.e. to speak in a divine capacity) it needs to have bypassed human involvement*. The conception of this view tends to be of a bibical author falling under the power of Spirit which works through them to produce the text in a way that independent of the personality, experiences, character, tics, and faculties of that individual. If we look closely though at how the biblical author's themselve portay their experience of working in partnership with God's spirit (as we will) see see that this isn't the case. 
 
-It's important to note that this point is not made to bash a certain view of inspiration. But to face that view, refelct on it, and the implication that it has, and importanrly the background that informs this view. This was largely the bpersepctive of the scriptures in the community in which I came to faith myself and so I have an appreciation that this view aims to uphold view of the scripture that they believe preserves God's involvement and the integrity of divine authorship. However, if you hold that expectation, it's important to ask the question whether that expection is one which the bible holds for itself. 
+It's important to note that this point is not made to bash a certain view of inspiration. But to face that view, reflect on it, the implications that it has, and importantly the background that informs this view. This was largely the persepctive of the scriptures in the community in which I came to faith myself and so I have an appreciation that this view aims to uphold view of the scripture that they believe preserves God's involvement and the integrity of divine authorship. However, if you hold that expectation, it's important to ask the question whether that expection is one which the bible holds for itself. 
 
-The reality of the 
-
-- the process of the bible coming together is very complex. Their is history of interactions with changes to the manuscript that is incredibly human
-- When people are under the spirit they are in control of themselves
-
-The challenge over time as you come an understanding of the making of the bible leads to an understanding of a cannon that is shaped over time.
-
-Let's look at moments when the authors mention their own biblcal writing and what we'll notice is that it's mundace/normal. IT should n't frighten us but encourage us to challenge our assumptions
+Let's look at moments when the authors mention their own biblcal writing and what we'll notice is that it's mundane/normal. It shouldn't frighten us but encourage us to challenge our assumptions about the process inspiration
 
 ## Biblical Representations of Inspiration
 
 The Scriptures that Paul refers to in 1 Timothy 3:16 are the Jewish Scriptures, what now refer to as our old testament. These scriptures are full of places where the authors themselves write about the experience of having God's spirit at work in them. 
 
-Examples of people understanding themselves under th influence of God's spirit but with control of their facultires (beautiful poetic form and narrtive form)
+> But truly I am full of power by the Spirit of the LORD, And of justice and might, To declare to Jacob his transgression And to Israel his sin.
+> Micah 3:8 (NKJV)
+
+> Now these are the last words of David. Thus says David the son of Jesse; Thus says the man raised up on high, The anointed of the God of Jacob, And the sweet psalmist of Israel:
+> “The Spirit of the LORD spoke by me, And His word was on my tongue.
+> 1 Sam. 23:1-2
+
+If we take a step back something that becomes apparent is that the biblical author's reflect on their partnership
+
+Examples of people understanding themselves under the influence of God's spirit but with control of their facultires (beautiful poetic form and narrtive form)
 Micah 3:8
 2 Samuel 23:1-2
-
-
 
 ### Unpacking the Assumptions of our Cultural Moment
 
@@ -58,7 +58,7 @@ One our first big challenges that we must face when we come to the scriptures is
 
 ![img](./images/supernatural.png)
 
-The problems is, this model is only around 200 years old. Before then, the natrual and supernatural were not considered distinct but were deeply intertwined. God pushed the sun up every morning and that was natural. It was an enchanted view of the world not bounded by what we could see and test. The problem we often have now, is that we plug the bible into this modern model and create all kinds of problems for ourselves. Problems that relate to understanding what it is and how it speaks, and our expectations for it. Practically, what happnes is that we want to uphold a high view of scripture as we feel forced to defend it as one of these supernatural interventions and so then it becomes important to defend and explain that it came into existence through supernatural means that cannot be explained through normal human processes, because if that's what happned then the bible is simply a natrual document.
+The problem is, this model is only around 200 years old. Before then, the natrual and supernatural were not considered distinct but were deeply intertwined. God pushed the sun up every morning and that was natural. It was an enchanted view of the world not bounded by what we could see and test. The problem we often have now, is that we plug the bible into our modern, dualist model and create all kinds of problems for ourselves. Problems that relate to understanding what the Bible is, how it speaks, and our expectations for it. Practically, what happens is that we want to uphold a high view of scripture as we feel forced to defend it as one of these supernatural interventions and so then it becomes important to defend and explain that it came into existence through supernatural means that cannot be explained through normal human processes, because if that's what happned then the bible is simply a natrual document.
 
 ### Re-shaping our Notion of Divine-Human Partnership
 
@@ -66,18 +66,18 @@ Now, do the biblical authors share this view of reality? This view of the relati
 
 From page one of the bible, we are presented with a view that believes in multiple domensions to reality, of the heavenly and earthly. 
 
-The whole nature of the garden of eden and the image of God is that humans are the place heavenly and the earthly, the dvine and the human are one. Rhe entrie image of Eden, in which God walks with humanity and humanity is atuned to the sound of God's presence speaks to the vision of creation as a unified heaven and earth 
+The whole nature of the garden of eden and the image of God is that humans are the place heavenly and the earthly, the dvine and the human are one. The entire image of Eden, in which God walks with humanity and humanity is atuned to the sound of God's presence speaks to the vision of creation as a unified heaven and earth 
 
 Gen 1:26
 God's will is carried forward in and through humans who he has chosen to partner with in bringing blessing to creation. God's interventions is through the natrual. He does create to override creation but work through his human partners in creation. [This is an important idea that we'll return to when we look at the bible as narrative in a nother post]
 
+So when it comes to our image of the bible and it's origins, the work of the spirit in and through humans are moments in which the divine and the human are working partnership together. This is still something people can deny. But what this understanding opens up for us is the a wider field of view in which we do not have to imagine the bible's origins as being supernatural with little ot no human involvement or human context. And if God has chosen to work through humans this means that it is wrapped up in huanity and humans have cultures, and languages, we exist in a place in time, we are finite and out contextx change over time. This shouldn't be somethign we shy away from but view as an invitation to meet the biblical authors where they are and in their understanding.
 
-So when it comes to our image of the bible and it's origins, the work of the spirit in and through humans are moments in which the divine and the human are working partnership together. This is still something peopke can deny. But what this understanding opens up for us is the a wider field of view in which we do not have to imagine the bible's origins as being supernatural with little ot no human involvement or human context. And if God has chosen to work through humans this means that it is wrapped up in huanity and humans have cultures, and languages, we exist in a place in time, we are finite and out contextx change over time. This shouldn't be somethign we shy away from but view as an invitation to meet the biblical authors where they are and in their understanding.
+![imageOgGod](./images/imageOfGod.png)
 
-The assumption of the biblical authors however is that through the image of God in humans, that we are the place where heaven and earth meet. The view of Eden as a whole 
+The assumption of the biblical authors, however, is that through the image of God in humans, that we are the place where heaven and earth meet. The view of Eden as a whole 
 
-
-Every human you encounter is a concrete embodiemtn of the creator. Not every concrete embodiment is intune with the creato (Gen 9:1-7). All the people you meet in this story are physical creatures through whom God's will is at work in the world.
+Every human you encounter is a concrete embodiment of the creator. Not every concrete embodiment is intune with the creato (Gen 9:1-7). All the people you meet in this story are physical creatures through whom God's will is at work in the world.
 When applied to the origins of the bible, what it measn, then, is that this will have a traceable human history.
 
 Everything that takes place in God's creation in is graced with the presence of God, is held together, for, declaring the glory of. - student
